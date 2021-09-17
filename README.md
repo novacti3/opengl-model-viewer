@@ -1,11 +1,20 @@
-# C++ OpenGL project template
-This is a template for my C++ OpenGL projects so I don't have to spend 30 minutes on setting up a project every time I want to start a new one.
+# OpenGL Model Viewer
+A model viewer written as a companion app for my IT class presentation at school.
 
-## How to use
-Click the Use this template button and create a new repository
+Load up a .obj model into a window and look at it in its glory using the power of OpenGL.
 
-## Setting up
-1) Rename CMake target to the name of the project
-2) Configure CMake
-3) Rewrite README.md
-4) Get to work
+## Building
+CMake 3.15+ and a compiler with C++17 support required.
+
+1) Clone this repo by using the following command:
+```bash
+git clone --recursive https://github.com/novacti3/opengl-model-viewer "ModelViewer"
+```
+
+WIP
+
+## Features
+WIP
+
+## Usage
+WIP

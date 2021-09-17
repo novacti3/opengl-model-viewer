@@ -5,8 +5,8 @@
 
 #define LOG(x) std::cout << x << std::endl;
 
-static unsigned int constexpr WINDOW_WIDTH = 1270; 
-static unsigned int constexpr WINDOW_HEIGHT = 720;
+static constexpr unsigned int WINDOW_WIDTH = 1270; 
+static constexpr unsigned int WINDOW_HEIGHT = 720;
 static const std::string WINDOW_TITLE = "My OpenGL Program";
 
 int main()

@@ -4,7 +4,7 @@ if(APPLE)
     message(FATAL "macOS is not supported. Abandoning build...")
 endif()
 
-project(projectName LANGUAGES C CXX)
+project(ModelViewer LANGUAGES C CXX)
 
 make_directory(bin/)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/$<CONFIG>/)
@@ -13,14 +13,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/$<CONFIG>/)
 find_package(OpenGL REQUIRED)
 
 # Link GLFW and set build options
- add_subdirectory(libs/glfw ${projectName_BINARY_DIR}/glfw)
+ add_subdirectory(libs/glfw ${ModelViewer_BINARY_DIR}/glfw)
 set(BUILD_SHARED_LIBS OFF)
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
 
-add_subdirectory(libs/freetype ${projectName_BINARY_DIR}/freetype)
+add_subdirectory(libs/freetype ${ModelViewer_BINARY_DIR}/freetype)
 
 list(APPEND INCLUDES
     # external includes
@@ -38,13 +38,13 @@ list(APPEND SOURCES
     libs/glad/src/glad.c
 )
 
-add_executable(projectName src/program.cpp)
+add_executable(ModelViewer src/program.cpp)
 # Change the executable's name and C++ language standard
-set_target_properties(projectName PROPERTIES 
-OUTPUT_NAME projectName 
+set_target_properties(ModelViewer PROPERTIES 
+OUTPUT_NAME ModelViewer 
 CXX_STANDARD 17)
 
-target_link_libraries(projectName OpenGL::GL glfw freetype)
+target_link_libraries(ModelViewer OpenGL::GL glfw freetype)
 
-target_include_directories(projectName PRIVATE ${INCLUDES})
-target_sources(projectName PRIVATE ${SOURCES})
+target_include_directories(ModelViewer PRIVATE ${INCLUDES})
+target_sources(ModelViewer PRIVATE ${SOURCES})
