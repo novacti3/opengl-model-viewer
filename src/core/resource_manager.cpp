@@ -6,17 +6,6 @@
 #include <fstream>
 #include <sstream>
 
-void ResourceManager::Cleanup()
-{
-    // Delete all loaded shaders
-    for(auto shader: _loadedShaders)
-    {
-        delete shader.second;
-        shader.second = nullptr;
-    }
-    _loadedShaders.clear();
-}
-
 #pragma region Shaders
     Shader *ResourceManager::CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
     {
@@ -53,21 +42,22 @@ void ResourceManager::Cleanup()
         return shader;
     }
 
-    Shader *ResourceManager::GetShader(const std::string &name)
+    const std::unique_ptr<Shader>* const ResourceManager::GetShader(const std::string &name)
     {
-        for(auto shader: _loadedShaders)
+        for(const auto &shader: _loadedShaders)
         {
             if(shader.first.compare(name) == 0)
             {
-                return shader.second;
+                return &_loadedShaders[shader.first];
             }
         }
         Log::LogError("Couldn't find shader " + name + " among loaded shaders");
         return nullptr;
     }
 
-    void ResourceManager::AddShader(Shader *shader, std::string name)
+    void ResourceManager::AddShader(Shader* shader, std::string name)
     {
-        _loadedShaders.insert(std::make_pair(name, shader));
+        std::unique_ptr<Shader> shaderSmartPtr(shader);
+        _loadedShaders.insert(std::make_pair(name, std::move(shaderSmartPtr)));
     }
 #pragma endregion
