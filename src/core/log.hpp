@@ -73,25 +73,25 @@ class Log final
         {
             case LogLevel::Info:
             {
-                logLevelStr = "Info";
+                logLevelStr = "INFO";
             }
             break;
         
             case LogLevel::Warning:
             {
-                logLevelStr = "Warning";
+                logLevelStr = "WARN";
             }
             break;
 
             case LogLevel::Error:
             {
-                logLevelStr = "Error";
+                logLevelStr = "ERR";
             }
             break;
 
             case LogLevel::Fatal:
             {
-                logLevelStr = "Fatal";
+                logLevelStr = "FATAL";
             }
             break;
         }

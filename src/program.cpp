@@ -3,7 +3,8 @@
 #include <string>
 #include <iostream>
 
-#define LOG(x) std::cout << x << std::endl;
+#include "core/log.hpp"
+#include "core/resource_manager.hpp"
 
 static constexpr unsigned int WINDOW_WIDTH = 1270; 
 static constexpr unsigned int WINDOW_HEIGHT = 720;
@@ -11,9 +12,15 @@ static const std::string WINDOW_TITLE = "My OpenGL Program";
 
 int main()
 {
+#ifdef _DEBUG
+    Log::SetLogLevelFilter(LogLevel::Info);
+#else
+    Log::SetLogLevelFilter(LogLevel::Warning);
+#endif
+
     if(!glfwInit())
     {
-        LOG("GLFW failed to initialize...");
+        Log::LogFatal("GLFW failed to initialize. Exiting application...");
         return -1;
     }
 
@@ -22,7 +29,7 @@ int main()
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG("glad failed to initialize...");
+        Log::LogFatal("glad failed to initialize. Exiting application...");
         return -1;
     }
 
