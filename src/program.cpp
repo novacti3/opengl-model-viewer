@@ -6,6 +6,8 @@
 #include "core/log.hpp"
 #include "core/resource_manager.hpp"
 
+#include "rendering/shader.hpp"
+
 static constexpr unsigned int WINDOW_WIDTH = 1270; 
 static constexpr unsigned int WINDOW_HEIGHT = 720;
 static const std::string WINDOW_TITLE = "My OpenGL Program";
@@ -33,10 +35,48 @@ int main()
         return -1;
     }
 
+
+    float vertices[] =
+    {
+        0.0f, 0.5f, // top
+        -0.5f, -0.5f, // left
+        0.5f, -0.5f // right
+    };
+
+    unsigned int VAO, VBO;
+
+    GL_CALL(glad_glGenVertexArrays(1, &VAO));
+    GL_CALL(glad_glGenBuffers(1, &VBO));
+
+    GL_CALL(glad_glBindVertexArray(VAO));
+    GL_CALL(glad_glBindBuffer(GL_ARRAY_BUFFER, VBO));
+    GL_CALL(glad_glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+
+    GL_CALL(glad_glVertexAttribPointer(0, 2, GL_FLOAT, false, 2*sizeof(float), nullptr));
+    GL_CALL(glad_glEnableVertexAttribArray(0));
+
+    GL_CALL(glad_glBindVertexArray(0));
+    GL_CALL(glad_glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+
+    Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-color.vs", "../../../res/shaders/unlit-color.fs");
+    ResourceManager::getInstance().AddShader(shader, "unlit");
+
+    auto resShader = ResourceManager::getInstance().GetShader("unlit");
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         glfwSwapBuffers(window);
+
+        GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
+        GL_CALL(glad_glClearColor(1.0f, 0.0f, 0.9f, 1.0f));
+
+        GL_CALL(glad_glBindVertexArray(VAO));
+        resShader->get()->Bind();
+        GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 3));
+        resShader->get()->Unbind();
+        GL_CALL(glad_glBindVertexArray(0));
     }
     
     return 0;
