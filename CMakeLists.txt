@@ -36,6 +36,13 @@ list(APPEND INCLUDES
 list(APPEND SOURCES
     # external sources
     libs/glad/src/glad.c
+
+    # project core sources
+    src/core/resource_manager.cpp
+
+    # project rendering sources
+    src/rendering/shader.cpp
+    src/rendering/texture.cpp
 )
 
 add_executable(ModelViewer src/program.cpp)
