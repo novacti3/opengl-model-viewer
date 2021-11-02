@@ -24,10 +24,12 @@ add_subdirectory(libs/freetype ${ModelViewer_BINARY_DIR}/freetype)
 
 list(APPEND INCLUDES
     # external includes
+    libs/
     libs/glfw/include
     libs/glad/include
     libs/glm/
     libs/freetype/include
+    libs/imgui/
 
     # project includes
     src/
@@ -36,6 +38,13 @@ list(APPEND INCLUDES
 list(APPEND SOURCES
     # external sources
     libs/glad/src/glad.c
+    libs/imgui/imgui_demo.cpp
+    libs/imgui/imgui_draw.cpp
+    libs/imgui/imgui_tables.cpp
+    libs/imgui/imgui_widgets.cpp
+    libs/imgui/imgui.cpp
+    libs/imgui/backends/imgui_impl_opengl3.cpp
+    libs/imgui/backends/imgui_impl_glfw.cpp
 
     # project core sources
     src/core/resource_manager.cpp

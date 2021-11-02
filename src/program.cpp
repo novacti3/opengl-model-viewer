@@ -1,5 +1,10 @@
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <string>
 #include <iostream>
 
@@ -26,6 +31,11 @@ int main()
         return -1;
     }
 
+    const char* glslVersion = "#version 150";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE.c_str(), NULL, NULL);
     glfwMakeContextCurrent(window);
 
@@ -35,6 +45,15 @@ int main()
         return -1;
     }
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    
+    ImGui::StyleColorsDark();
+    
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glslVersion);
+    bool showDemoWindow = true;
 
     float vertices[] =
     {
@@ -79,8 +98,16 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glfwSwapBuffers(window);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        if (showDemoWindow)
+            ImGui::ShowDemoWindow(&showDemoWindow);
+
+        ImGui::Render();
+        
         GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
         GL_CALL(glad_glClearColor(1.0f, 0.0f, 0.9f, 1.0f));
 
@@ -90,7 +117,19 @@ int main()
         GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
         resShader->get()->Unbind();
         GL_CALL(glad_glBindVertexArray(0));
+        
+
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
     }
     
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
     return 0;
 }
