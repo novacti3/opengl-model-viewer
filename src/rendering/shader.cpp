@@ -58,20 +58,24 @@ Shader::Shader(const char *vertSource, const char *fragSource)
     GL_CALL(glad_glDeleteShader(vertShader));
     GL_CALL(glad_glDeleteShader(fragShader));
 
+    // Uniform parsing
     int numActiveUniforms;
     GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
+    int nameBufferLength;
+    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameBufferLength));
 
-    // FIXME: Throws a memory access violation 0x000000
-    // for (int i = 0; i < numActiveUniforms; i++)
-    // {
-    //     std::string name;
-    //     unsigned int typeInt;
-    //     GL_CALL(glad_glGetActiveUniform(_id, i, 512, NULL, NULL, &typeInt, name.data()));
+    for (int i = 0; i < numActiveUniforms; i++)
+    {
+        // NOTE: this can probably be squashed down
+        char name[nameBufferLength];
+        int size;
+        unsigned int type;
+        GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
 
-    //     _uniforms.push_back(ShaderUniform(std::move(name), ShaderUniformType(std::move(typeInt))));
-    // }
-    // Log::LogInfo(_uniforms.size() + " uniforms...");
-    
+        std::string nameStr(name);
+        ShaderUniform uniform(nameStr, ShaderUniformType(type));
+        _uniforms.push_back(uniform);
+    }
 }
 Shader::~Shader()
 {
