@@ -2,10 +2,41 @@
 
 #include "core/log.hpp"
 
-#include <glad/glad.h>
+ShaderUniform::ShaderUniform(const std::string name, const ShaderUniformType type) 
+    : _name(name), _type(type) {}
+ShaderUniform::~ShaderUniform()
+{
+    this->_name.clear();
+    this->_type = ShaderUniformType::UNDEFINED;
+}
+// TODO: if (other != this)...
+// Copy
+ShaderUniform::ShaderUniform(const ShaderUniform& other)
+{
+    this->_name = other._name;
+    this->_type = other._type;
+}
+ShaderUniform& ShaderUniform::operator=(ShaderUniform other)
+{
+    this->_name = other._name;
+    this->_type = other._type;
+    return *this;
+}
+// Move
+ShaderUniform::ShaderUniform(ShaderUniform&& other)
+{
+    this->_name = std::move(other._name);
+    this->_type = std::move(other._type);
+}
+ShaderUniform& ShaderUniform::operator=(ShaderUniform&& other)
+{
+    this->_name = std::move(other._name);
+    this->_type = std::move(other._type);
+    return *this;
+}
+
 
 Shader::Shader(const char *vertSource, const char *fragSource)
-    : _id(0)
 {
     unsigned int vertShader, fragShader;
     
@@ -26,12 +57,28 @@ Shader::Shader(const char *vertSource, const char *fragSource)
 
     GL_CALL(glad_glDeleteShader(vertShader));
     GL_CALL(glad_glDeleteShader(fragShader));
+
+    int numActiveUniforms;
+    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
+
+    // FIXME: Throws a memory access violation 0x000000
+    // for (int i = 0; i < numActiveUniforms; i++)
+    // {
+    //     std::string name;
+    //     unsigned int typeInt;
+    //     GL_CALL(glad_glGetActiveUniform(_id, i, 512, NULL, NULL, &typeInt, name.data()));
+
+    //     _uniforms.push_back(ShaderUniform(std::move(name), ShaderUniformType(std::move(typeInt))));
+    // }
+    // Log::LogInfo(_uniforms.size() + " uniforms...");
+    
 }
 Shader::~Shader()
 {
     GL_CALL(glad_glDeleteProgram(_id));
 }
 
+// TODO: if (other != this)...
 // Copy
 Shader::Shader(const Shader& other)
 {
