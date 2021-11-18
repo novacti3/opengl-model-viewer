@@ -106,6 +106,24 @@ int main()
         if (showDemoWindow)
             ImGui::ShowDemoWindow(&showDemoWindow);
 
+        // Shader properties window
+        ImGui::Begin("Shader properties");
+        for(ShaderUniform uniform: shader->getUniforms())
+        {
+            float val[4];
+            switch(uniform.getType())
+            {
+                case ShaderUniformType::VEC4:
+                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
+                break;
+
+                case ShaderUniformType::MAT4:
+                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
+                break;
+            }
+        }
+        ImGui::End();
+
         ImGui::Render();
         
         GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));

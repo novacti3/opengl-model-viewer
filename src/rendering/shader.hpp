@@ -32,9 +32,12 @@ struct ShaderUniform
     private:
     std::string _name = "";
     ShaderUniformType _type = ShaderUniformType::UNDEFINED;
+    // NOTE: Not optimal because it wastes memory for data types not containing 
+    // 4 float values but I can't be arsed right now
+    float _value[4];
 
     public: 
-    ShaderUniform(const std::string name, const ShaderUniformType type);
+    ShaderUniform(const std::string name, const ShaderUniformType type, float* _value);
     // Copy
     ShaderUniform(const ShaderUniform& other);
     ShaderUniform& operator=(ShaderUniform other);
@@ -45,6 +48,7 @@ struct ShaderUniform
 
     inline const std::string &getName()       const { return _name; }
     inline const ShaderUniformType &getType() const { return _type; }
+    inline const float* const getValue() const { return _value; } 
 };
 
 class Shader
