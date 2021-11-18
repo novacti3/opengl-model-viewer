@@ -50,6 +50,7 @@ list(APPEND SOURCES
     src/core/resource_manager.cpp
 
     # project rendering sources
+    src/rendering/shader_uniform.cpp
     src/rendering/shader.cpp
     src/rendering/texture.cpp
 )

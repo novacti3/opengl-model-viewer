@@ -2,45 +2,6 @@
 
 #include "core/log.hpp"
 
-ShaderUniform::ShaderUniform(const std::string name, const ShaderUniformType type, float* value) 
-    : _name(name), _type(type), _value(value) {}
-ShaderUniform::~ShaderUniform()
-{
-    this->_name.clear();
-    this->_type = ShaderUniformType::UNDEFINED;
-    free(this->_value);
-}
-// TODO: if (other != this)...
-// Copy
-ShaderUniform::ShaderUniform(const ShaderUniform& other)
-{
-    this->_name = other._name;
-    this->_type = other._type;
-    this->_value = other._value;
-}
-ShaderUniform& ShaderUniform::operator=(ShaderUniform other)
-{
-    this->_name = other._name;
-    this->_type = other._type;
-    this->_value = other._value;
-    return *this;
-}
-// Move
-ShaderUniform::ShaderUniform(ShaderUniform&& other)
-{
-    this->_name = std::move(other._name);
-    this->_type = std::move(other._type);
-    this->_value = std::move(other._value);
-}
-ShaderUniform& ShaderUniform::operator=(ShaderUniform&& other)
-{
-    this->_name = std::move(other._name);
-    this->_type = std::move(other._type);
-    this->_value = std::move(other._value);
-    return *this;
-}
-
-
 Shader::Shader(const char *vertSource, const char *fragSource)
 {
     unsigned int vertShader, fragShader;
@@ -77,11 +38,8 @@ Shader::Shader(const char *vertSource, const char *fragSource)
         unsigned int type;
         GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
 
-        float value[4];
-        GL_CALL(glad_glGetUniformfv(_id, i, value));
-
         std::string nameStr(name);
-        ShaderUniform uniform(nameStr, ShaderUniformType(type), value);
+        ShaderUniform uniform(nameStr, ShaderUniformType(type));
         _uniforms.push_back(uniform);
     }
 }
