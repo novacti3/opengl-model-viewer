@@ -1,9 +1,17 @@
 #pragma once
 
+#include <glad/glad.h>
+
+#include "shader_uniform.hpp"
+
+#include <vector>
+#include <memory>
+
 class Shader
 {
     private:
-    unsigned int _id;
+    unsigned int _id = 0;
+    std::vector<std::shared_ptr<ShaderUniform>> _uniforms;
 
     public:
     Shader(const char *vertSource, const char *fragSource);
@@ -20,7 +28,9 @@ class Shader
     void Unbind() const;
 
     inline const unsigned int &getID() const { return _id; }
+    inline const std::vector<std::shared_ptr<ShaderUniform>> &getUniforms() const { return _uniforms; }
 
     private:
+    void UpdateUniforms() const;
     void CheckShaderForErrors(unsigned int shader);
 };

@@ -2,10 +2,7 @@
 
 #include "core/log.hpp"
 
-#include <glad/glad.h>
-
 Shader::Shader(const char *vertSource, const char *fragSource)
-    : _id(0)
 {
     unsigned int vertShader, fragShader;
     
@@ -26,12 +23,52 @@ Shader::Shader(const char *vertSource, const char *fragSource)
 
     GL_CALL(glad_glDeleteShader(vertShader));
     GL_CALL(glad_glDeleteShader(fragShader));
+
+    // Uniform parsing
+    int numActiveUniforms;
+    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
+    int nameBufferLength;
+    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameBufferLength));
+
+    for (int i = 0; i < numActiveUniforms; i++)
+    {
+        // NOTE: this can probably be squashed down
+        // Not created by doing char name[nameBufferLength] because MSVC can't use non-const vars to create arrays on the stack
+        char* name = new char[nameBufferLength];
+        int size;
+        unsigned int type;
+        GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
+        std::string nameStr(name);
+        delete name;
+
+        switch((ShaderUniformType)type)
+        {
+            case ShaderUniformType::VEC4:
+            {
+                float* value = new float[4];
+                GL_CALL(glad_glGetUniformfv(_id, i, value));
+                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
+                _uniforms.push_back(std::move(uniform));        
+            } 
+            break;
+            
+            case ShaderUniformType::MAT4:  
+            {
+                float* value = new float[4*4];
+                GL_CALL(glad_glGetUniformfv(_id, i, value));
+                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
+                _uniforms.push_back(std::move(uniform));        
+            }
+            break;
+        }
+    }
 }
 Shader::~Shader()
 {
     GL_CALL(glad_glDeleteProgram(_id));
 }
 
+// TODO: if (other != this)...
 // Copy
 Shader::Shader(const Shader& other)
 {
@@ -57,11 +94,28 @@ Shader& Shader::operator=(Shader&& other)
 void Shader::Bind() const
 {
     GL_CALL(glad_glUseProgram(_id));
+    UpdateUniforms();
 }
 
 void Shader::Unbind() const
 {
     GL_CALL(glad_glUseProgram(0));
+}
+
+void Shader::UpdateUniforms() const
+{
+    for(auto uniform: _uniforms)
+    {
+        switch(uniform.get()->getType())
+        {
+            case ShaderUniformType::VEC4:
+            {
+                unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
+                GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+            }
+            break;
+        }
+    }
 }
 
 void Shader::CheckShaderForErrors(unsigned int shader)
