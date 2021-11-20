@@ -108,17 +108,16 @@ int main()
 
         // Shader properties window
         ImGui::Begin("Shader properties");
-        for(ShaderUniform uniform: shader->getUniforms())
+        for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {
-            float val[4];
-            switch(uniform.getType())
+            switch(uniform.get()->getType())
             {
                 case ShaderUniformType::VEC4:
-                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
+                    ImGui::InputFloat4(uniform.get()->getName().c_str(), (float*)uniform.get()->value, "%.2f");
                 break;
 
                 case ShaderUniformType::MAT4:
-                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
+                    // Draw a 4x4 InputFloat widget thing
                 break;
             }
         }

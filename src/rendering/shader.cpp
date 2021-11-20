@@ -33,14 +33,35 @@ Shader::Shader(const char *vertSource, const char *fragSource)
     for (int i = 0; i < numActiveUniforms; i++)
     {
         // NOTE: this can probably be squashed down
-        char name[nameBufferLength];
+        // Not created by doing char name[nameBufferLength] because MSVC can't use non-const vars to create arrays on the stack
+        char* name = new char[nameBufferLength];
         int size;
         unsigned int type;
         GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
 
         std::string nameStr(name);
-        ShaderUniform uniform(nameStr, ShaderUniformType(type));
-        _uniforms.push_back(uniform);
+        delete name;
+
+        switch((ShaderUniformType)type)
+        {
+            case ShaderUniformType::VEC4:
+            {
+                float* value = new float[4];
+                GL_CALL(glad_glGetUniformfv(_id, i, value));
+                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
+                _uniforms.push_back(std::move(uniform));        
+            } 
+            break;
+            
+            case ShaderUniformType::MAT4:  
+            {
+                float* value = new float[4*4];
+                GL_CALL(glad_glGetUniformfv(_id, i, value));
+                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
+                _uniforms.push_back(std::move(uniform));        
+            }
+            break;
+        }
     }
 }
 Shader::~Shader()

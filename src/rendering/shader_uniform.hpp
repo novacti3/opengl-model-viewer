@@ -25,16 +25,17 @@ enum class ShaderUniformType
     TEX3D = GL_SAMPLER_3D
 };
 
-// Base class
 struct ShaderUniform
 {
     private:
     std::string _name = "";
     ShaderUniformType _type = ShaderUniformType::UNDEFINED;
+    public:
+    void* value = nullptr;
 
     public: 
     ShaderUniform();
-    ShaderUniform(const std::string name, const ShaderUniformType type);
+    ShaderUniform(const std::string name, const ShaderUniformType type, void* value);
     // Copy
     ShaderUniform(const ShaderUniform& other);
     ShaderUniform& operator=(ShaderUniform other);
@@ -45,4 +46,7 @@ struct ShaderUniform
 
     inline const std::string &getName()       const { return _name; }
     inline const ShaderUniformType &getType() const { return _type; }
+
+    private:
+    void DeleteValuePtr();
 };
