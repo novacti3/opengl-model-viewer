@@ -38,7 +38,6 @@ Shader::Shader(const char *vertSource, const char *fragSource)
         int size;
         unsigned int type;
         GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
-
         std::string nameStr(name);
         delete name;
 
