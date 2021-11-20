@@ -25,16 +25,19 @@ enum class ShaderUniformType
     TEX3D = GL_SAMPLER_3D
 };
 
-// Base class
 struct ShaderUniform
 {
     private:
     std::string _name = "";
     ShaderUniformType _type = ShaderUniformType::UNDEFINED;
+    public:
+    // NOTE: Add voic* value instead of making a new class for each type
+    // and then just cast the void* as a pointer of the appropriate value type?
+    void* value;
 
     public: 
     ShaderUniform();
-    ShaderUniform(const std::string name, const ShaderUniformType type);
+    ShaderUniform(const std::string name, const ShaderUniformType type, void* value);
     // Copy
     ShaderUniform(const ShaderUniform& other);
     ShaderUniform& operator=(ShaderUniform other);

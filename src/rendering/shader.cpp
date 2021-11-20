@@ -32,15 +32,31 @@ Shader::Shader(const char *vertSource, const char *fragSource)
 
     for (int i = 0; i < numActiveUniforms; i++)
     {
-        // NOTE: this can probably be squashed down
+        // Middleman char buffer here because doing std::string.data()
+        // doesn't fill the string with data for some reason
         char name[nameBufferLength];
         int size;
         unsigned int type;
         GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
-
         std::string nameStr(name);
-        ShaderUniform uniform(nameStr, ShaderUniformType(type));
-        _uniforms.push_back(uniform);
+
+        switch((ShaderUniformType)type)
+        {
+            case ShaderUniformType::VEC4:
+            case ShaderUniformType::MAT4:
+            {
+                // The same address gets assigned to the local var in all loop iterations
+                float* value = (float*)malloc(4 * sizeof(float));
+                GL_CALL(glad_glGetUniformfv(_id, i, value));
+                // FIXME: Crashes the program after the first uniform
+                // SIGABRT
+                // raise.c Could not load source './signal/../sysdeps/unix/sysv/linux/raise.c': 
+                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(name, ShaderUniformType(type), (void*)value));
+                _uniforms.push_back(std::move(uniform));
+                value = nullptr;
+            }
+            break;
+        }
     }
 }
 Shader::~Shader()

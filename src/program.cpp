@@ -108,18 +108,17 @@ int main()
 
         // Shader properties window
         ImGui::Begin("Shader properties");
-        for(ShaderUniform uniform: shader->getUniforms())
+        for(auto uniform: shader->getUniforms())
         {
-            float val[4];
-            switch(uniform.getType())
+            if(uniform.get()->getName() != "u_MVP")
             {
-                case ShaderUniformType::VEC4:
-                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
-                break;
-
-                case ShaderUniformType::MAT4:
-                    ImGui::InputFloat4(uniform.getName().c_str(), val, "%.2f");
-                break;
+                switch(uniform.get()->getType())
+                {
+                    case ShaderUniformType::VEC4:
+                    case ShaderUniformType::MAT4:
+                        ImGui::InputFloat4(uniform.get()->getName().c_str(), (float*)uniform.get()->value, "%.2f");
+                    break;
+                }
             }
         }
         ImGui::End();
