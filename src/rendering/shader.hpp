@@ -31,5 +31,6 @@ class Shader
     inline const std::vector<std::shared_ptr<ShaderUniform>> &getUniforms() const { return _uniforms; }
 
     private:
+    void UpdateUniforms() const;
     void CheckShaderForErrors(unsigned int shader);
 };

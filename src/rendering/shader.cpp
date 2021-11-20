@@ -94,11 +94,28 @@ Shader& Shader::operator=(Shader&& other)
 void Shader::Bind() const
 {
     GL_CALL(glad_glUseProgram(_id));
+    UpdateUniforms();
 }
 
 void Shader::Unbind() const
 {
     GL_CALL(glad_glUseProgram(0));
+}
+
+void Shader::UpdateUniforms() const
+{
+    for(auto uniform: _uniforms)
+    {
+        switch(uniform.get()->getType())
+        {
+            case ShaderUniformType::VEC4:
+            {
+                unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
+                GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+            }
+            break;
+        }
+    }
 }
 
 void Shader::CheckShaderForErrors(unsigned int shader)

@@ -113,7 +113,7 @@ int main()
             switch(uniform.get()->getType())
             {
                 case ShaderUniformType::VEC4:
-                    ImGui::InputFloat4(uniform.get()->getName().c_str(), (float*)uniform.get()->value, "%.2f");
+                    ImGui::ColorPicker4(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
                 break;
 
                 case ShaderUniformType::MAT4:
