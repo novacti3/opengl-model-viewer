@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
 
 #include "../misc/singleton.hpp"
@@ -30,7 +29,7 @@ class Renderer : public Singleton<Renderer>
     unsigned int VAO, VBO, EBO;
 
     public:
-    void Init(GLFWwindow* const window);
+    void Init();
     void DeInit();
     void DrawScene(Shader* const shader);
 };

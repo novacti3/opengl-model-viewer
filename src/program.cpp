@@ -6,7 +6,7 @@
 
 #include "core/log.hpp"
 #include "core/resource_manager.hpp"
-
+#include "core/ui_manager.hpp"
 #include "rendering/renderer.hpp"
 #include "rendering/shader.hpp"
 
@@ -41,7 +41,8 @@ int main()
         return -1;
     }
 
-    Renderer::getInstance().Init(window);
+    UIManager::getInstance().Init(window);
+    Renderer::getInstance().Init();
 
     Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-color.vs", "../../../res/shaders/unlit-color.fs");
     ResourceManager::getInstance().AddShader(shader, "unlit");
@@ -50,11 +51,16 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+
         Renderer::getInstance().DrawScene(resShader->get());
+        UIManager::getInstance().DrawUI(resShader->get());
+        
         glfwSwapBuffers(window);
     }
 
     Renderer::getInstance().DeInit();
+    UIManager::getInstance().DeInit();
+    
     glfwDestroyWindow(window);
     glfwTerminate();
 
