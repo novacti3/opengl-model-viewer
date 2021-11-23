@@ -53,7 +53,7 @@ int main()
         glfwPollEvents();
 
         Renderer::getInstance().DrawScene(resShader->get());
-        UIManager::getInstance().DrawUI(resShader->get());
+        UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         
         glfwSwapBuffers(window);
     }

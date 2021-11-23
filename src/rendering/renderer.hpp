@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "../misc/singleton.hpp"
 
@@ -17,7 +17,7 @@ enum class RenderMode
 struct RendererSettings
 {
     RenderMode renderMode = RenderMode::TRIANGLES;
-    glm::vec3 bgColor = glm::vec3(23.0f/255.0f, 22.0f/255.0f, 26.0f/255.0f);
+    glm::vec4 bgColor = glm::vec4(23.0f/255.0f, 22.0f/255.0f, 26.0f/255.0f, 1.0f);
 };
 
 class Renderer : public Singleton<Renderer>

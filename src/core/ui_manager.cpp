@@ -24,22 +24,29 @@ void UIManager::DeInit()
     ImGui::DestroyContext();
 }
 
-void UIManager::DrawUI(Shader* const shaderInUse)
+void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    DrawRendererPropertiesWindow();
+    ImGui::ShowDemoWindow();
+
+    DrawRendererPropertiesWindow(rendererSettings);
     DrawShaderPropertiesWindow(shaderInUse);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UIManager::DrawRendererPropertiesWindow()
+void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 {
+    ImGui::Begin("Renderer properties");
+    
+    UIManager::DrawWidgetEnum("Render mode");
+    UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
 
+    ImGui::End();
 }
 void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
@@ -49,7 +56,8 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
         switch(uniform.get()->getType())
         {
             case ShaderUniformType::VEC4:
-                ImGui::ColorEdit4(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                // TODO: Some sort of differenciation between regular vec4 and color
+                UIManager::DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
             break;
 
             case ShaderUniformType::MAT4:
@@ -59,3 +67,69 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
     }
     ImGui::End();
 }
+
+#pragma region Widgets
+void UIManager::DrawWidgetEnum(const char* label, int* const items, const int &itemCount)
+{
+    ImGui::BeginGroup();
+    
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label, ""); ImGui::SameLine();
+
+    // TODO: Finish combo widget
+    ImGui::Combo("", 0, items, itemCount);
+
+    ImGui::EndGroup();
+}
+
+void UIManager::DrawWidgetVec3(const char* label, float* const value)
+{
+    ImGui::BeginGroup();
+    
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label, ""); ImGui::SameLine();
+    
+    ImGui::Text("X", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value);
+
+    ImGui::Text("Y", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value + sizeof(float));
+
+    ImGui::Text("Z", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value + sizeof(float) * 2);
+
+    ImGui::EndGroup();
+}
+void UIManager::DrawWidgetVec4(const char* label, float* const value)
+{
+    ImGui::BeginGroup();
+    
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label, ""); ImGui::SameLine();
+    
+    ImGui::Text("X", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value);
+
+    ImGui::Text("Y", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value + sizeof(float));
+
+    ImGui::Text("Z", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value + sizeof(float) * 2);
+
+    ImGui::Text("W", ""); ImGui::SameLine();
+    ImGui::DragFloat("", value + sizeof(float) * 3);
+
+    ImGui::EndGroup();
+}
+
+void UIManager::DrawWidgetColor(const char* label, float* const value)
+{
+    ImGui::BeginGroup();
+    
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label, ""); ImGui::SameLine();
+    ImGui::ColorEdit4("", value);
+
+    ImGui::EndGroup();
+}
+#pragma endregion
