@@ -19,9 +19,8 @@ class UIManager : public Singleton<UIManager>
     void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
     void DrawShaderPropertiesWindow(Shader* const shader);
 
+    void DrawWidgetCheckbox(const char* label, bool* const value);
 
-    void DrawWidgetEnum(const char* label, int* const items, const int &itemCount);
-    
     void DrawWidgetVec3(const char* label, float* const value);
     void DrawWidgetVec4(const char* label, float* const value);
 

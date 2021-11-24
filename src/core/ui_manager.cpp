@@ -4,6 +4,10 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <utility>
+
+#define ARRAY_SIZE(x) sizeof(x)/sizeof(x[0]) 
+
 static constexpr char* GLSL_VERSION = "#version 150"; 
 
 void UIManager::Init(GLFWwindow* const window)
@@ -41,45 +45,44 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderI
 
 void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 {
-    ImGui::Begin("Renderer properties");
-    
-    UIManager::DrawWidgetEnum("Render mode");
-    UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
+    if(ImGui::Begin("Renderer properties"))
+    {
+        UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
+        
+        static bool renderWireframe = false;
+        UIManager::DrawWidgetCheckbox("Draw wireframe", &renderWireframe);
+        rendererSettings.renderMode = renderWireframe ? RenderMode::WIREFRAME : RenderMode::TRIANGLES;
 
-    ImGui::End();
+        ImGui::End();
+    }
 }
 void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
-    ImGui::Begin("Shader properties");
-    for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
+    if(ImGui::Begin("Shader properties"))
     {
-        switch(uniform.get()->getType())
+        for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {
-            case ShaderUniformType::VEC4:
-                // TODO: Some sort of differenciation between regular vec4 and color
-                UIManager::DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
-            break;
+            switch(uniform.get()->getType())
+            {
+                case ShaderUniformType::VEC4:
+                    // TODO: Some sort of differenciation between regular vec4 and color
+                    UIManager::DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                break;
 
-            case ShaderUniformType::MAT4:
-                // Draw a 4x4 InputFloat widget thing
-            break;
+                case ShaderUniformType::MAT4:
+                    // Draw a 4x4 InputFloat widget thing
+                break;
+            }
         }
+        ImGui::End();
     }
-    ImGui::End();
 }
 
 #pragma region Widgets
-void UIManager::DrawWidgetEnum(const char* label, int* const items, const int &itemCount)
+void UIManager::DrawWidgetCheckbox(const char* label, bool* const value)
 {
-    ImGui::BeginGroup();
-    
-    ImGui::AlignTextToFramePadding();
-    ImGui::Text(label, ""); ImGui::SameLine();
-
-    // TODO: Finish combo widget
-    ImGui::Combo("", 0, items, itemCount);
-
-    ImGui::EndGroup();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::Checkbox("", value);
 }
 
 void UIManager::DrawWidgetVec3(const char* label, float* const value)
@@ -87,15 +90,15 @@ void UIManager::DrawWidgetVec3(const char* label, float* const value)
     ImGui::BeginGroup();
     
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(label, ""); ImGui::SameLine();
+    ImGui::Text(label); ImGui::SameLine();
     
-    ImGui::Text("X", ""); ImGui::SameLine();
+    ImGui::Text("X"); ImGui::SameLine();
     ImGui::DragFloat("", value);
 
-    ImGui::Text("Y", ""); ImGui::SameLine();
+    ImGui::Text("Y"); ImGui::SameLine();
     ImGui::DragFloat("", value + sizeof(float));
 
-    ImGui::Text("Z", ""); ImGui::SameLine();
+    ImGui::Text("Z"); ImGui::SameLine();
     ImGui::DragFloat("", value + sizeof(float) * 2);
 
     ImGui::EndGroup();
@@ -105,18 +108,18 @@ void UIManager::DrawWidgetVec4(const char* label, float* const value)
     ImGui::BeginGroup();
     
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(label, ""); ImGui::SameLine();
+    ImGui::Text(label); ImGui::SameLine();
     
-    ImGui::Text("X", ""); ImGui::SameLine();
+    ImGui::Text("X"); ImGui::SameLine();
     ImGui::DragFloat("", value);
 
-    ImGui::Text("Y", ""); ImGui::SameLine();
+    ImGui::Text("Y"); ImGui::SameLine();
     ImGui::DragFloat("", value + sizeof(float));
 
-    ImGui::Text("Z", ""); ImGui::SameLine();
+    ImGui::Text("Z"); ImGui::SameLine();
     ImGui::DragFloat("", value + sizeof(float) * 2);
 
-    ImGui::Text("W", ""); ImGui::SameLine();
+    ImGui::Text("W"); ImGui::SameLine();
     ImGui::DragFloat("", value + sizeof(float) * 3);
 
     ImGui::EndGroup();
@@ -127,7 +130,7 @@ void UIManager::DrawWidgetColor(const char* label, float* const value)
     ImGui::BeginGroup();
     
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(label, ""); ImGui::SameLine();
+    ImGui::Text(label); ImGui::SameLine();
     ImGui::ColorEdit4("", value);
 
     ImGui::EndGroup();

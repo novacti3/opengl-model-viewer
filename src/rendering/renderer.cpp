@@ -50,10 +50,12 @@ void Renderer::DrawScene(Shader* const shader)
     GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
     GL_CALL(glad_glClearColor(settings.bgColor.x, settings.bgColor.y, settings.bgColor.z, 1.0f));
 
+    GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
+
     GL_CALL(glad_glBindVertexArray(VAO));
     shader->Bind();
     // GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 3));
-    GL_CALL(glad_glDrawElements((GLenum)settings.renderMode, 6, GL_UNSIGNED_INT, 0));
+    GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     shader->Unbind();
     GL_CALL(glad_glBindVertexArray(0));
 };

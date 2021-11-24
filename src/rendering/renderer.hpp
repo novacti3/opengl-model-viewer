@@ -10,8 +10,8 @@
 
 enum class RenderMode
 {
-    TRIANGLES = GL_TRIANGLES,
-    WIREFRAME = GL_LINES
+    TRIANGLES = GL_FILL,
+    WIREFRAME = GL_LINE
 };
 
 struct RendererSettings
