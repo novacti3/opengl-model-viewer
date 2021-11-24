@@ -1,6 +1,5 @@
 #include "ui_manager.hpp"
 
-#include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -34,18 +33,66 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderI
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
 
-    DrawRendererPropertiesWindow(rendererSettings);
-    DrawShaderPropertiesWindow(shaderInUse);
+    DrawMainMenuBar();
+    if(_showRendererProperties)
+        DrawRendererPropertiesWindow(rendererSettings);
+    if(_showShaderProperties)
+        DrawShaderPropertiesWindow(shaderInUse);
+    
+    #ifdef _DEBUG
+    if(_showImGuiDemoWindow)
+        ImGui::ShowDemoWindow();
+    #endif
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+void UIManager::DrawMainMenuBar()
+{
+    ImGui::BeginMainMenuBar();
+
+    if(ImGui::BeginMenu("File"))
+    {
+        if(ImGui::MenuItem("Open file...", "CTRL+O", false, false))
+        {
+            // Open a file dialogue to let the user open a file
+            // WIP
+        }
+        if(ImGui::MenuItem("Close file", "CTRL+N", false, false))
+        {
+            // Close the currently loaded file
+            // WIP
+        }
+        ImGui::Separator();
+        if(ImGui::MenuItem("Exit", "ESC", false, false))
+        {
+            // Quit program
+            // WIP
+        }
+
+        ImGui::EndMenu();
+    }
+    
+    if(ImGui::BeginMenu("Windows"))
+    {
+        ImGui::MenuItem("Renderer properties", "", &_showRendererProperties, true);
+        ImGui::MenuItem("Shader properties", "", &_showShaderProperties, true);
+        #ifdef _DEBUG
+        ImGui::Separator();
+        ImGui::MenuItem("ImGui demo", "", &_showImGuiDemoWindow, true);
+        #endif
+     
+        ImGui::EndMenu();
+    }
+
+    ImGui::EndMainMenuBar();
+}
+
 void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 {
-    if(ImGui::Begin("Renderer properties"))
+    if(ImGui::Begin("Renderer properties", false, _windowFlags))
     {
         UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
         
@@ -58,7 +105,7 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 }
 void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
-    if(ImGui::Begin("Shader properties"))
+    if(ImGui::Begin("Shader properties", false, _windowFlags))
     {
         for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {

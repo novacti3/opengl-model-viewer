@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #include "../misc/singleton.hpp"
 #include "../rendering/renderer.hpp"
@@ -9,6 +10,15 @@
 
 class UIManager : public Singleton<UIManager>
 {
+    private:
+    ImGuiWindowFlags _windowFlags = ImGuiWindowFlags_NoCollapse;
+
+    bool _showRendererProperties = false;
+    bool _showShaderProperties = false;
+    #ifdef _DEBUG
+    bool _showImGuiDemoWindow = false;
+    #endif
+
     public:
     void Init(GLFWwindow* const window);
     void DeInit();
@@ -16,6 +26,7 @@ class UIManager : public Singleton<UIManager>
     void DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse);
 
     private:
+    void DrawMainMenuBar();
     void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
     void DrawShaderPropertiesWindow(Shader* const shader);
 
