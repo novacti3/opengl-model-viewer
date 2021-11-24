@@ -45,6 +45,21 @@ void Renderer::DeInit()
     GL_CALL(glad_glDeleteVertexArrays(1, &VAO));
 }
 
+void Renderer::DrawModel(Model* const model, Shader* const shader)
+{
+    GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
+    GL_CALL(glad_glClearColor(settings.bgColor.x, settings.bgColor.y, settings.bgColor.z, 1.0f));
+
+    GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
+
+    GL_CALL(glad_glBindVertexArray(model->getVAO()));
+    shader->Bind();
+    GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, model->getVertices().size()));
+    shader->Unbind();
+    GL_CALL(glad_glBindVertexArray(0));
+}
+
+
 void Renderer::DrawScene(Shader* const shader)
 {
     GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
