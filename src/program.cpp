@@ -48,15 +48,17 @@ int main()
     ResourceManager::getInstance().AddShader(shader, "unlit");
     auto resShader = ResourceManager::getInstance().GetShader("unlit");
 
-    Model *model = ResourceManager::getInstance().CreateModelFromOBJFile("../../../res/models/axe.obj");
-    ResourceManager::getInstance().AddModel(model, "axe");
-
+    float deltaTime = 0.0f;
+    float lastTime = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
-        // Renderer::getInstance().DrawScene(resShader->get());
-        Renderer::getInstance().DrawModel(model, shader);
+        static float currentTime = glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        Renderer::getInstance().DrawScene(resShader->get());
         UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         
         glfwSwapBuffers(window);
