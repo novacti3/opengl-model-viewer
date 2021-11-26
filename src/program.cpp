@@ -1,6 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <string>
 #include <iostream>
 
@@ -48,8 +51,23 @@ int main()
     ResourceManager::getInstance().AddShader(shader, "unlit");
     auto resShader = ResourceManager::getInstance().GetShader("unlit");
 
+
+    glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
+    viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
+    
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    glm::mat4 MVP = glm::mat4(1.0f);
+
+
     float deltaTime = 0.0f;
     float lastTime = 0.0f;
+    
+    constexpr float rotSpeed = 10.0f;
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -58,6 +76,12 @@ int main()
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
+        static float rotation = sin(rotSpeed * deltaTime);
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        MVP = projMatrix * viewMatrix * modelMatrix;
+        resShader->get()->SetUniform<glm::mat4>("u_MVP", &MVP);        
+        
         Renderer::getInstance().DrawScene(resShader->get());
         UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         
