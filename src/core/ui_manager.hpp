@@ -30,10 +30,10 @@ class UIManager : public Singleton<UIManager>
     void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
     void DrawShaderPropertiesWindow(Shader* const shader);
 
-    void DrawWidgetCheckbox(const char* label, bool* const value);
+    void DrawWidgetCheckbox(const char* const label, bool* const value);
 
-    void DrawWidgetVec3(const char* label, float* const value);
-    void DrawWidgetVec4(const char* label, float* const value);
+    void DrawWidgetVec3(const char* const label, float* const value);
+    void DrawWidgetVec4(const char* const label, float* const value);
 
-    void DrawWidgetColor(const char* label, float* const value);
+    void DrawWidgetColor(const char* const label, float* const value);
 };

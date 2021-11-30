@@ -128,13 +128,13 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 }
 
 #pragma region Widgets
-void UIManager::DrawWidgetCheckbox(const char* label, bool* const value)
+void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
 {
     ImGui::Text(label); ImGui::SameLine();
     ImGui::Checkbox("", value);
 }
 
-void UIManager::DrawWidgetVec3(const char* label, float* const value)
+void UIManager::DrawWidgetVec3(const char* const label, float* const value)
 {
     ImGui::BeginGroup();
     
@@ -152,7 +152,7 @@ void UIManager::DrawWidgetVec3(const char* label, float* const value)
 
     ImGui::EndGroup();
 }
-void UIManager::DrawWidgetVec4(const char* label, float* const value)
+void UIManager::DrawWidgetVec4(const char* const label, float* const value)
 {
     ImGui::BeginGroup();
     
@@ -174,7 +174,7 @@ void UIManager::DrawWidgetVec4(const char* label, float* const value)
     ImGui::EndGroup();
 }
 
-void UIManager::DrawWidgetColor(const char* label, float* const value)
+void UIManager::DrawWidgetColor(const char* const label, float* const value)
 {
     ImGui::BeginGroup();
     
