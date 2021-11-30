@@ -94,7 +94,7 @@ void UIManager::DrawMainMenuBar()
 
 void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 {
-    if(ImGui::Begin("Renderer properties", nullptr, _windowFlags))
+    if(ImGui::Begin("Renderer properties", &_showRendererProperties, _windowFlags))
     {
         UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
         
@@ -107,7 +107,7 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 }
 void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
-    if(ImGui::Begin("Shader properties", nullptr, _windowFlags))
+    if(ImGui::Begin("Shader properties", &_showShaderProperties, _windowFlags))
     {
         for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {
