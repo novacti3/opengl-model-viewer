@@ -11,7 +11,7 @@
 class UIManager : public Singleton<UIManager>
 {
     private:
-    ImGuiWindowFlags _windowFlags = ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags _windowFlags = 0;
 
     bool _showRendererProperties = false;
     bool _showShaderProperties = false;

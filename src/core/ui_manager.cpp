@@ -17,6 +17,8 @@ void UIManager::Init(GLFWwindow* const window)
     
     ImGui::StyleColorsDark();
     
+    //_windowFlags |= ImGuiWindowFlags_NoCollapse;
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 }
@@ -100,8 +102,8 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
         UIManager::DrawWidgetCheckbox("Draw wireframe", &renderWireframe);
         rendererSettings.renderMode = renderWireframe ? RenderMode::WIREFRAME : RenderMode::TRIANGLES;
 
-        ImGui::End();
     }
+    ImGui::End();
 }
 void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
@@ -121,8 +123,8 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
                 break;
             }
         }
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 #pragma region Widgets
