@@ -106,13 +106,15 @@ void Shader::UpdateUniforms() const
 {
     for(auto uniform: _uniforms)
     {
+        unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
         switch(uniform.get()->getType())
         {
             case ShaderUniformType::VEC4:
-            {
-                unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
                 GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform.get()->value)));
-            }
+            break;
+
+            case ShaderUniformType::MAT4:
+                GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
             break;
         }
     }

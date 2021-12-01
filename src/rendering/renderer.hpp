@@ -6,6 +6,7 @@
 #include "../misc/singleton.hpp"
 
 #include "shader.hpp"
+#include "model.hpp"
 
 
 enum class RenderMode
@@ -31,5 +32,6 @@ class Renderer : public Singleton<Renderer>
     public:
     void Init();
     void DeInit();
+    void DrawModel(Model* const model, Shader* const shader);
     void DrawScene(Shader* const shader);
 };

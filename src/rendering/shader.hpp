@@ -30,6 +30,18 @@ class Shader
     inline const unsigned int &getID() const { return _id; }
     inline const std::vector<std::shared_ptr<ShaderUniform>> &getUniforms() const { return _uniforms; }
 
+    template<typename T>
+    void SetUniform(const std::string &name, const T* value)
+    {
+        for(auto uniform: _uniforms)
+        {
+            if(uniform.get()->getName() == name)
+            {
+                uniform.get()->value = (void*)value;
+            }
+        }
+    }
+
     private:
     void UpdateUniforms() const;
     void CheckShaderForErrors(unsigned int shader);
