@@ -6,6 +6,7 @@
 #include "../misc/singleton.hpp"
 
 #include "shader.hpp"
+#include "texture.hpp"
 
 enum class RenderMode
 {
@@ -30,5 +31,5 @@ class Renderer : public Singleton<Renderer>
     public:
     void Init();
     void DeInit();
-    void DrawScene(Shader* const shader);
+    void DrawScene(Shader* const shader, Texture* const texture = nullptr);
 };

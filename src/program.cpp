@@ -51,8 +51,19 @@ int main()
     Renderer::getInstance().Init();
 
     Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-color.vs", "../../../res/shaders/unlit-color.fs");
-    ResourceManager::getInstance().AddShader(shader, "unlit");
-    auto resShader = ResourceManager::getInstance().GetShader("unlit");
+    ResourceManager::getInstance().AddShader(shader, "unlit-color");
+
+    shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-tex.vs", "../../../res/shaders/unlit-tex.fs");
+    ResourceManager::getInstance().AddShader(shader, "unlit-tex");
+
+
+    Texture *tex = ResourceManager::getInstance().CreateTextureFromFile("../../../res/textures/tile.jpg");
+    ResourceManager::getInstance().AddTexture(tex, "tile");
+
+
+    //auto resShader = ResourceManager::getInstance().GetShader("unlit-color");
+    auto resShader = ResourceManager::getInstance().GetShader("unlit-tex");
+    auto resTex = ResourceManager::getInstance().GetTexture("tile");
 
 
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
@@ -84,9 +95,9 @@ int main()
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
-        resShader->get()->SetUniform<glm::mat4>("u_MVP", &MVP);        
+        resShader->get()->SetUniform("u_MVP", (void*)&MVP);  
 
-        Renderer::getInstance().DrawScene(resShader->get());
+        Renderer::getInstance().DrawScene(resShader->get(), resTex->get());
 
         UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         

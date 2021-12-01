@@ -30,14 +30,13 @@ class Shader
     inline const unsigned int &getID() const { return _id; }
     inline const std::vector<std::shared_ptr<ShaderUniform>> &getUniforms() const { return _uniforms; }
 
-    template<typename T>
-    void SetUniform(const std::string &name, const T* value)
+    void SetUniform(const std::string &name, const void* value)
     {
         for(auto uniform: _uniforms)
         {
             if(uniform.get()->getName() == name)
             {
-                uniform.get()->value = (void*)value;
+                uniform.get()->value = const_cast<void*>(value);
             }
         }
     }

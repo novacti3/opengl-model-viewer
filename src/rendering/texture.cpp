@@ -14,7 +14,7 @@ Texture::Texture(int target, glm::uvec2 size, int internalFormat, int format, co
     Bind();
     GL_CALL(glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GL_CALL(glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    GL_CALL(glad_glTexImage2D(_target, 0, _internalFormat, _size.x, _size.y, 0, _format, GL_UNSIGNED_BYTE, NULL));
+    GL_CALL(glad_glTexImage2D(_target, 0, _internalFormat, _size.x, _size.y, 0, _format, GL_UNSIGNED_BYTE, data));
     Unbind();
 }
 Texture::~Texture()
