@@ -55,7 +55,6 @@ list(APPEND SOURCES
     src/rendering/shader_uniform.cpp
     src/rendering/shader.cpp
     src/rendering/texture.cpp
-    src/rendering/mesh.cpp
 )
 
 add_executable(ModelViewer src/program.cpp)
