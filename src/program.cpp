@@ -68,6 +68,7 @@ int main()
 
     float deltaTime = 0.0f;
     float lastTime = 0.0f;
+    float rotSpeed = 20.0f;
     
     while(!glfwWindowShouldClose(window))
     {
@@ -77,29 +78,40 @@ int main()
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        static float rotSpeed = 10.0f;
         static float rotation = sin(rotSpeed * deltaTime);
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
         resShader->get()->SetUniform<glm::mat4>("u_MVP", &MVP);        
+
         Renderer::getInstance().DrawScene(resShader->get());
-        // UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        // ImGui_ImplOpenGL3_NewFrame();
+        // ImGui_ImplGlfw_NewFrame();
+        // ImGui::NewFrame();
 
-        if(ImGui::Begin("Test"))
-        {
-            ImGui::DragFloat("Drag", &rotSpeed);
-            ImGui::InputFloat("Input", &rotSpeed);
-        }
-        ImGui::End();
+        // static bool ass = false;
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // if(ImGui::Begin("Test"))
+        // {
+        //     ImGui::Checkbox("Ass", &ass);
+        //     ImGui::DragFloat("Yeet", &rotSpeed);
 
+        //     // When doing this, the two widgets have overlapping collision boxes
+        //     // Write up a git issue about this and see what it might be caused by.
+        //     ImGui::Text("Ass 2"); ImGui::SameLine();
+        //     ImGui::Checkbox("", &ass);
+            
+        //     ImGui::Text("Drag"); ImGui::SameLine();
+        //     ImGui::DragFloat("", &rotSpeed);
+        // }
+        // ImGui::End();
+
+        // ImGui::Render();
+        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        UIManager::getInstance().DrawUI(Renderer::getInstance().settings, &rotSpeed, resShader->get());
+        
         glfwSwapBuffers(window);
     }
 

@@ -29,7 +29,7 @@ void UIManager::DeInit()
     ImGui::DestroyContext();
 }
 
-void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse)
+void UIManager::DrawUI(RendererSettings &rendererSettings, float* const rotSpeed, Shader* const shaderInUse)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -38,7 +38,7 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderI
 
     DrawMainMenuBar();
     if(_showRendererProperties)
-        DrawRendererPropertiesWindow(rendererSettings);
+        DrawRendererPropertiesWindow(rendererSettings, rotSpeed);
     if(_showShaderProperties)
         DrawShaderPropertiesWindow(shaderInUse);
     
@@ -92,7 +92,7 @@ void UIManager::DrawMainMenuBar()
     ImGui::EndMainMenuBar();
 }
 
-void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
+void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings, float* const rotSpeed)
 {
     if(ImGui::Begin("Renderer properties", nullptr, _windowFlags))
     {
@@ -102,6 +102,7 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
         UIManager::DrawWidgetCheckbox("Draw wireframe", &renderWireframe);
         rendererSettings.renderMode = renderWireframe ? RenderMode::WIREFRAME : RenderMode::TRIANGLES;
 
+        UIManager::DrawWidgetFloat("Rotation speed", rotSpeed);
     }
     ImGui::End();
 }
@@ -128,10 +129,23 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 }
 
 #pragma region Widgets
+void UIManager::DrawWidgetFloat(const char* const label, float* const value)
+{
+    ImGui::BeginGroup();
+
+    // ImGui::Text(label); ImGui::SameLine();
+    ImGui::DragFloat(label, value);
+    
+    ImGui::EndGroup();
+}
 void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
 {
-    ImGui::Text(label); ImGui::SameLine();
-    ImGui::Checkbox("", value);
+    ImGui::BeginGroup();
+  
+    // ImGui::Text(label); ImGui::SameLine();
+    ImGui::Checkbox(label, value);
+    
+    ImGui::EndGroup();
 }
 
 void UIManager::DrawWidgetVec3(const char* const label, float* const value)
@@ -179,8 +193,8 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
     ImGui::BeginGroup();
     
     ImGui::AlignTextToFramePadding();
-    ImGui::Text(label); ImGui::SameLine();
-    ImGui::ColorEdit4("", value);
+    //ImGui::Text(label); ImGui::SameLine();
+    ImGui::ColorEdit4(label, value);
 
     ImGui::EndGroup();
 }
