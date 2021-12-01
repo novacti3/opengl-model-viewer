@@ -29,7 +29,7 @@ void UIManager::DeInit()
     ImGui::DestroyContext();
 }
 
-void UIManager::DrawUI(RendererSettings &rendererSettings, float* const rotSpeed, Shader* const shaderInUse)
+void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -38,7 +38,7 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, float* const rotSpeed
 
     DrawMainMenuBar();
     if(_showRendererProperties)
-        DrawRendererPropertiesWindow(rendererSettings, rotSpeed);
+        DrawRendererPropertiesWindow(rendererSettings);
     if(_showShaderProperties)
         DrawShaderPropertiesWindow(shaderInUse);
     
@@ -92,7 +92,7 @@ void UIManager::DrawMainMenuBar()
     ImGui::EndMainMenuBar();
 }
 
-void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings, float* const rotSpeed)
+void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
 {
     if(ImGui::Begin("Renderer properties", &_showRendererProperties, _windowFlags))
     {
@@ -101,8 +101,6 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings,
         static bool renderWireframe = false;
         UIManager::DrawWidgetCheckbox("Draw wireframe", &renderWireframe);
         rendererSettings.renderMode = renderWireframe ? RenderMode::WIREFRAME : RenderMode::TRIANGLES;
-
-        UIManager::DrawWidgetFloat("Rotation speed", rotSpeed);
     }
     ImGui::End();
 }
@@ -134,7 +132,7 @@ void UIManager::DrawWidgetFloat(const char* const label, float* const value)
     ImGui::BeginGroup();
 
     // ImGui::Text(label); ImGui::SameLine();
-    ImGui::DragFloat(label, value);
+    ImGui::DragFloat(label, value, 0.5f);
     
     ImGui::EndGroup();
 }

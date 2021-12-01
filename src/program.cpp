@@ -68,7 +68,9 @@ int main()
 
     float deltaTime = 0.0f;
     float lastTime = 0.0f;
-    float rotSpeed = 20.0f;
+    
+    constexpr float rotSpeed = -1.0f;
+    float rotation = 0.0f; 
     
     while(!glfwWindowShouldClose(window))
     {
@@ -78,7 +80,7 @@ int main()
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        static float rotation = sin(rotSpeed * deltaTime);
+        rotation = sin(rotSpeed * currentTime);
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
@@ -86,31 +88,7 @@ int main()
 
         Renderer::getInstance().DrawScene(resShader->get());
 
-        // ImGui_ImplOpenGL3_NewFrame();
-        // ImGui_ImplGlfw_NewFrame();
-        // ImGui::NewFrame();
-
-        // static bool ass = false;
-
-        // if(ImGui::Begin("Test"))
-        // {
-        //     ImGui::Checkbox("Ass", &ass);
-        //     ImGui::DragFloat("Yeet", &rotSpeed);
-
-        //     // When doing this, the two widgets have overlapping collision boxes
-        //     // Write up a git issue about this and see what it might be caused by.
-        //     ImGui::Text("Ass 2"); ImGui::SameLine();
-        //     ImGui::Checkbox("", &ass);
-            
-        //     ImGui::Text("Drag"); ImGui::SameLine();
-        //     ImGui::DragFloat("", &rotSpeed);
-        // }
-        // ImGui::End();
-
-        // ImGui::Render();
-        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        UIManager::getInstance().DrawUI(Renderer::getInstance().settings, &rotSpeed, resShader->get());
+        UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         
         glfwSwapBuffers(window);
     }
