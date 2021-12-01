@@ -23,13 +23,15 @@ class UIManager : public Singleton<UIManager>
     void Init(GLFWwindow* const window);
     void DeInit();
     
-    void DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse);
+    void DrawUI(RendererSettings &rendererSettings, float* const rotSpeed, Shader* const shaderInUse);
+
 
     private:
     void DrawMainMenuBar();
-    void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
+    void DrawRendererPropertiesWindow(RendererSettings &rendererSettings, float* const rotSpeed);
     void DrawShaderPropertiesWindow(Shader* const shader);
 
+    void DrawWidgetFloat(const char* const label, float* const value);
     void DrawWidgetCheckbox(const char* const label, bool* const value);
 
     void DrawWidgetVec3(const char* const label, float* const value);
