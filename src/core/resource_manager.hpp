@@ -2,7 +2,7 @@
 
 #include "misc/singleton.hpp"
 #include "rendering/shader.hpp"
-#include "rendering/model.hpp"
+#include "rendering/mesh.hpp"
 
 #include <unordered_map>
 #include <string>
@@ -14,7 +14,7 @@ class ResourceManager final : public Singleton<ResourceManager>
 
     private:
     std::unordered_map<std::string, std::unique_ptr<Shader>> _loadedShaders;
-    std::unordered_map<std::string, std::unique_ptr<Model>> _loadedModels;
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> _loadedModels;
 
     private:
     ResourceManager() = default;
@@ -31,7 +31,7 @@ class ResourceManager final : public Singleton<ResourceManager>
     const std::unique_ptr<Shader>* const GetShader(const std::string &name);
     void AddShader(Shader *shader, std::string name);
 
-    Model *CreateModelFromOBJFile(const std::string &path);
-    const std::unique_ptr<Model>* const GetModel(const std::string &name);
-    void AddModel(Model *model, std::string name);
+    Mesh *CreateMeshFromOBJFile(const std::string &path);
+    const std::unique_ptr<Mesh>* const GetMesh(const std::string &name);
+    void AddMesh(Mesh *model, std::string name);
 };

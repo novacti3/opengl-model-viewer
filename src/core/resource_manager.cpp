@@ -62,8 +62,8 @@ void ResourceManager::AddShader(Shader *shader, std::string name)
 }
 #pragma endregion
 
-#pragma region Models
-Model *ResourceManager::CreateModelFromOBJFile(const std::string &path)
+#pragma region Meshes
+Mesh *ResourceManager::CreateMeshFromOBJFile(const std::string &path)
 {
     std::ifstream objFile(path);
     std::stringstream dataStream;
@@ -109,26 +109,26 @@ Model *ResourceManager::CreateModelFromOBJFile(const std::string &path)
         }
     }
 
-    Model* model = new Model(std::move(vertices));
-    return model;
+    Mesh* mesh = new Mesh(std::move(vertices));
+    return mesh;
 }
 
-const std::unique_ptr<Model>* const ResourceManager::GetModel(const std::string &name)
+const std::unique_ptr<Mesh>* const ResourceManager::GetMesh(const std::string &name)
 {
-    for(const auto &model: _loadedModels)
+    for(const auto &mesh: _loadedModels)
     {
-        if(model.first.compare(name) == 0)
+        if(mesh.first.compare(name) == 0)
         {
-            return &_loadedModels[model.first];
+            return &_loadedModels[mesh.first];
         }
     }
-    Log::LogError("Couldn't find model " + name + " among loaded models");
+    Log::LogError("Couldn't find mesh " + name + " among loaded models");
     return nullptr;
 }
 
-void ResourceManager::AddModel(Model *model, std::string name)
+void ResourceManager::AddMesh(Mesh *mesh, std::string name)
 {
-    std::unique_ptr<Model> smartPtr(model);
+    std::unique_ptr<Mesh> smartPtr(mesh);
     _loadedModels.insert(std::make_pair(name, std::move(smartPtr)));
 }
 #pragma endregion

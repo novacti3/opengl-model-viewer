@@ -1,11 +1,11 @@
-#include "model.hpp"
+#include "mesh.hpp"
 
 #include <glad/glad.h>
 
 #include "../core/log.hpp"
 
-Model::Model(): _VAO(0), _VBO(0) {}
-Model::Model(std::vector<glm::vec3> vertices)
+Mesh::Mesh(): _VAO(0), _VBO(0) {}
+Mesh::Mesh(std::vector<glm::vec3> vertices)
     : _vertices(vertices)
 {
     GL_CALL(glad_glGenVertexArrays(1, &_VAO));
@@ -22,7 +22,7 @@ Model::Model(std::vector<glm::vec3> vertices)
     GL_CALL(glad_glBindVertexArray(0));
     GL_CALL(glad_glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
-Model::~Model()
+Mesh::~Mesh()
 {
     GL_CALL(glad_glDeleteBuffers(1, &_VBO));
     GL_CALL(glad_glDeleteVertexArrays(1, &_VAO));
