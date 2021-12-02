@@ -153,7 +153,7 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
         ImGui::SameLine();
         if(ImGui::Button("..."))
         {
-            auto shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", ".vs .fs"}, true);
+            auto shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
         }
 
         ImGui::Separator();
