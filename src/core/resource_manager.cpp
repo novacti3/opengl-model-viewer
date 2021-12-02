@@ -9,38 +9,38 @@
 #include <fstream>
 #include <sstream>
 
+std::string ResourceManager::ReadFile(const std::string &path)
+{
+    try
+    {
+        std::ifstream fileStream(path);
+        if(!fileStream.is_open())
+        {
+            Log::LogError("Couldn't read file, path: " + path);
+            return "";
+        }
+
+        std::stringstream stringStream;
+        stringStream << fileStream.rdbuf();
+        fileStream.close();
+
+        std::string contents = stringStream.str();
+        return contents;
+    }
+    catch(const std::exception& e)
+    {
+        // NOTE: This might be redundant because of the is_open check in the try block
+        Log::LogError(e.what());
+        return "";
+    }
+}
+
 #pragma region Shaders
 Shader* ResourceManager::CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
 {
-    // NOTE: Might want to wrap this in a try-catch block
-    std::ifstream vertShaderFile(vertShaderPath), fragShaderFile(fragShaderPath);
-    std::stringstream vertShaderSourceStream, fragShaderSourceStream;
-    std::string vertShaderSource, fragShaderSource;
-    
-    // Read the vertex shader file at the provided file path and store its contents
-    if(!vertShaderFile.is_open())
-    {
-        Log::LogError("Couldn't open file " + vertShaderPath);
-        return nullptr;
-    }
-    
-    vertShaderSourceStream << vertShaderFile.rdbuf();
-    vertShaderFile.close();
-    
-    // Read the fragment shader file at the provided file path and store its contents
-    if(!fragShaderFile.is_open())
-    {
-        Log::LogError("Couldn't open file " + fragShaderPath);
-        return nullptr;
-    }
+    std::string vertShaderSource = ReadFile(vertShaderPath);
+    std::string fragShaderSource = ReadFile(fragShaderPath);
 
-    fragShaderSourceStream << fragShaderFile.rdbuf();
-    fragShaderFile.close();
-    
-    vertShaderSource = vertShaderSourceStream.str();
-    fragShaderSource = fragShaderSourceStream.str();
-    
-    // Create a new shader from the extracted sources
     Shader *shader = new Shader(vertShaderSource.c_str(), fragShaderSource.c_str());
     return shader;
 }
