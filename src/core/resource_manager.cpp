@@ -45,13 +45,13 @@ Shader* ResourceManager::CreateShaderFromFiles(const std::string &vertShaderPath
     return shader;
 }
 
-const std::unique_ptr<Shader>* const ResourceManager::GetShader(const std::string &name)
+const Shader* const ResourceManager::GetShader(const std::string &name)
 {
     for(const auto &shader: _loadedShaders)
     {
         if(shader.first.compare(name) == 0)
         {
-            return &_loadedShaders[shader.first];
+            return _loadedShaders[shader.first].get();
         }
     }
     Log::LogError("Couldn't find shader " + name + " among loaded shaders");
@@ -74,13 +74,13 @@ Texture* ResourceManager::CreateTextureFromFile(const std::string &path)
     return tex;
 }
 
-const std::unique_ptr<Texture>* const ResourceManager::GetTexture(const std::string &name)
+const Texture* const ResourceManager::GetTexture(const std::string &name)
 {
     for(const auto &tex: _loadedTextures)
     {
         if(tex.first.compare(name) == 0)
         {
-            return &_loadedTextures[tex.first];
+            return _loadedTextures[tex.first].get();
         }
     }
     Log::LogError("Couldn't find texture " + name + " among loaded textures");

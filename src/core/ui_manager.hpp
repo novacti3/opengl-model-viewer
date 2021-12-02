@@ -23,15 +23,15 @@ class UIManager : public Singleton<UIManager>
     void Init(GLFWwindow* const window);
     void DeInit();
     
-    void DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse);
+    void DrawUI();
 
 
     private:
     std::vector<std::string> ShowFileDialog(const std::string &title, const std::vector<std::string> &filters = {"All files", "*"}, bool allowMultiSelect = false);
 
     void DrawMainMenuBar();
-    void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
-    void DrawShaderPropertiesWindow(Shader* const shader);
+    void DrawRendererPropertiesWindow();
+    void DrawShaderPropertiesWindow();
 
     void DrawWidgetFloat(const char* const label, float* const value);
     void DrawWidgetCheckbox(const char* const label, bool* const value);

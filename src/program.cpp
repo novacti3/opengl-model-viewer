@@ -57,17 +57,12 @@ int main()
     shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-tex.vs", "../../../res/shaders/unlit-tex.fs");
     ResourceManager::getInstance().AddShader(shader, "unlit-tex");
 
-
     Texture *tex = ResourceManager::getInstance().CreateTextureFromFile("../../../res/textures/tile.jpg");
     ResourceManager::getInstance().AddTexture(tex, "tile");
 
+    Scene::getInstance().shader = const_cast<Shader*>(ResourceManager::getInstance().GetShader("default"));
+    Scene::getInstance().textures.push_back(const_cast<Texture*>(ResourceManager::getInstance().GetTexture("tile")));
 
-    //auto resShader = ResourceManager::getInstance().GetShader("unlit-color");
-    auto resShader = ResourceManager::getInstance().GetShader("unlit-tex");
-    auto resTex = ResourceManager::getInstance().GetTexture("tile");
-
-    Scene::getInstance().shader = ResourceManager::getInstance().GetShader("unlit-tex")->get();
-    Scene::getInstance().textures.push_back(ResourceManager::getInstance().GetTexture("tile")->get());
 
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
@@ -101,7 +96,7 @@ int main()
         Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
 
         Renderer::getInstance().DrawScene();
-        UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
+        UIManager::getInstance().DrawUI();
         
         glfwSwapBuffers(window);
     }

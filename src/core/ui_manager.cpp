@@ -32,7 +32,7 @@ void UIManager::DeInit()
     ImGui::DestroyContext();
 }
 
-void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse)
+void UIManager::DrawUI()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -41,9 +41,9 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderI
 
     DrawMainMenuBar();
     if(_showRendererProperties)
-        DrawRendererPropertiesWindow(rendererSettings);
+        DrawRendererPropertiesWindow();
     if(_showShaderProperties)
-        DrawShaderPropertiesWindow(shaderInUse);
+        DrawShaderPropertiesWindow();
     
     #ifdef _DEBUG
     if(_showImGuiDemoWindow)
@@ -102,10 +102,12 @@ void UIManager::DrawMainMenuBar()
     ImGui::EndMainMenuBar();
 }
 
-void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
+void UIManager::DrawRendererPropertiesWindow()
 {
     if(ImGui::Begin("Renderer properties", &_showRendererProperties, _windowFlags))
     {
+        static RendererSettings &rendererSettings = Renderer::getInstance().settings;
+
         UIManager::DrawWidgetColor("Background color", (float*)(&(rendererSettings.bgColor)));
         
         static bool renderWireframe = false;
@@ -114,7 +116,7 @@ void UIManager::DrawRendererPropertiesWindow(RendererSettings &rendererSettings)
     }
     ImGui::End();
 }
-void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
+void UIManager::DrawShaderPropertiesWindow()
 {
     if(ImGui::Begin("Shader properties", &_showShaderProperties, _windowFlags))
     {
@@ -163,7 +165,7 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 
         ImGui::Text("Shader uniforms:");
         // Shader uniforms display and editing
-        for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
+        for(std::shared_ptr<ShaderUniform> uniform: Scene::getInstance().shader->getUniforms())
         {
             switch(uniform.get()->getType())
             {

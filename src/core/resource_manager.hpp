@@ -37,10 +37,10 @@ class ResourceManager final : public Singleton<ResourceManager>
     std::string ReadFile(const std::string &path);
 
     Shader *CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);
-    const std::unique_ptr<Shader>* const GetShader(const std::string &name);
+    const Shader* const GetShader(const std::string &name);
     void AddShader(Shader *shader, std::string name);
 
     Texture *CreateTextureFromFile(const std::string &path);
-    const std::unique_ptr<Texture>* const GetTexture(const std::string &name);
+    const Texture* const GetTexture(const std::string &name);
     void AddTexture(Texture *texture, std::string name);
 };
