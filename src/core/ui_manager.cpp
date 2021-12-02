@@ -4,7 +4,9 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <pfd/portable-file-dialogs.h>
 
+#include "log.hpp"
 #include "resource_manager.hpp"
+#include "../misc/utils.hpp"
 
 #include <utility>
 
@@ -157,8 +159,49 @@ void UIManager::DrawShaderPropertiesWindow()
         ImGui::SameLine();
         if(ImGui::Button("..."))
         {
-            std::vector<std::string> shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
-            // TODO: Notify ResourceManager to create a shader with the provided files
+            std::vector<std::string> shaderPaths = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
+            if(!shaderPaths.empty())
+            {
+                static struct FilePathSplitter
+                {
+                    std::pair<std::string, std::string> operator()(const std::string &path)
+                    {
+                        std::vector<std::string> splitPath = SplitString(path, '/');
+                        std::vector<std::string> fileNameWithExtension = SplitString(splitPath[splitPath.size() - 1], '.');
+                        std::string fileName = fileNameWithExtension[0];
+                        std::string extension = fileNameWithExtension[1];
+
+                        return make_pair(fileName, extension);
+                    }
+                } ParseFileNameAndExtension;
+
+                using ShaderSources = std::pair<std::string, std::string>;
+                std::vector<ShaderSources> shaderSources;
+
+                for(const std::string &path: shaderPaths)
+                {
+                    std::pair<std::string, std::string> fileNameAndExtension = ParseFileNameAndExtension(path);
+
+                    if(fileNameAndExtension.second.compare("vs") == 0)
+                    {
+                        for (const std::string &path: shaderPaths)
+                        {
+                            continue;
+                        }
+                    }
+                    else if(fileNameAndExtension.second.compare("fs") == 0)
+                    {
+                        for (const std::string &path: shaderPaths)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Log::LogError("Couldn't create shader " + fileNameAndExtension.first + ", only " + fileNameAndExtension.second + " source file provided");
+                    }
+                }
+            }
         }
 
         ImGui::Separator();
