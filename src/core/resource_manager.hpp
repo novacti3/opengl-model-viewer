@@ -8,13 +8,16 @@
 #include <string>
 #include <memory>
 
+using LoadedShadersMap = std::unordered_map<std::string, std::unique_ptr<Shader>>;
+using LoadedTexturesMap = std::unordered_map<std::string, std::unique_ptr<Texture>>;
+
 class ResourceManager final : public Singleton<ResourceManager>
 {
     friend class Singleton<ResourceManager>;
 
     private:
-    std::unordered_map<std::string, std::unique_ptr<Shader>> _loadedShaders;
-    std::unordered_map<std::string, std::unique_ptr<Texture>> _loadedTextures;
+    LoadedShadersMap _loadedShaders;
+    LoadedTexturesMap _loadedTextures;
 
     private:
     ResourceManager() = default;
@@ -27,6 +30,9 @@ class ResourceManager final : public Singleton<ResourceManager>
     ResourceManager(ResourceManager&& other) = delete;
     ResourceManager& operator=(ResourceManager&& other) = delete;
 
+
+    inline const LoadedShadersMap &getLoadedShaders()   { return _loadedShaders;  }
+    inline const LoadedTexturesMap &getLoadedTextures() { return _loadedTextures; }
 
     std::string ReadFile(const std::string &path);
 

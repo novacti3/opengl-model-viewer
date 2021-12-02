@@ -4,6 +4,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <pfd/portable-file-dialogs.h>
 
+#include "resource_manager.hpp"
+
 #include <utility>
 
 #define ARRAY_SIZE(x) sizeof(x)/sizeof(x[0]) 
@@ -64,7 +66,7 @@ void UIManager::DrawMainMenuBar()
 
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem("Open file...", "CTRL+O", false))
+        if(ImGui::MenuItem("Open file...", "CTRL+O", false, false))
         {
             // Open a file dialogue to let the user load a mesh
             auto path = ShowFileDialog("Select mesh", {"All files", "*", "OBJ files", ".obj"});
@@ -73,13 +75,13 @@ void UIManager::DrawMainMenuBar()
         if(ImGui::MenuItem("Close file", "CTRL+N", false, false))
         {
             // Close the currently loaded mesh
-            // TODO: Unload model
+            // TODO: Notify the ResourceManager to unload the currently used mesh
         }
         ImGui::Separator();
         if(ImGui::MenuItem("Exit", "ESC", false, false))
         {
             // Quit program
-            // WIP
+            // TODO: Notify the app to end
         }
 
         ImGui::EndMenu();
@@ -116,6 +118,47 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 {
     if(ImGui::Begin("Shader properties", &_showShaderProperties, _windowFlags))
     {
+        static const LoadedShadersMap &loadedShaders = ResourceManager::getInstance().getLoadedShaders();
+        static int currentShader = 0;
+
+        static std::vector<std::string> loadedShaderNames;
+        // Only update the vector if necesarry
+        if(loadedShaderNames.size() != loadedShaders.size())
+        {
+            for (const auto &shader: loadedShaders)
+            {
+                // Only add the shader into the combo if it isn't present in the vector already
+                auto it = std::find(loadedShaderNames.begin(), loadedShaderNames.end(), shader.first);
+                if(it == loadedShaderNames.end())
+                {
+                    loadedShaderNames.push_back(shader.first);
+                }
+            }
+        }
+        
+        ImGui::Text("Loaded shaders"); ImGui::SameLine();
+        // NOTE: Maybe put this in a DrawWidgetCombo func of sorts
+        if(ImGui::BeginCombo("", loadedShaderNames[currentShader].c_str()))
+        {
+            for(int i = 0; i < loadedShaders.size(); i++)
+            {
+                const std::string &shaderName = loadedShaderNames[i];
+                const bool isSelected = (currentShader == i);
+                if(ImGui::Selectable(shaderName.c_str(), isSelected))
+                    currentShader = i;
+                    // TODO: Notify the Scene to switch shaders
+            }
+            ImGui::EndCombo(); 
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("..."))
+        {
+            auto shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", ".vs .fs"}, true);
+        }
+
+        ImGui::Separator();
+
+        // Shader uniforms display and editing
         for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {
             switch(uniform.get()->getType())
@@ -138,6 +181,10 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
 #pragma region Widgets
 void UIManager::DrawWidgetFloat(const char* const label, float* const value)
 {
+    // FIXME: The text label probably didn't work because BeginGroup
+    // not only locks the X position of the elements but also because
+    // it makes the elements share states like IsItemHovered
+    // So yeah, delete the group stuff, maybe that'll fix things
     ImGui::BeginGroup();
 
     // ImGui::Text(label); ImGui::SameLine();
