@@ -121,7 +121,6 @@ void UIManager::DrawShaderPropertiesWindow()
     if(ImGui::Begin("Shader properties", &_showShaderProperties, _windowFlags))
     {
         static const LoadedShadersMap &loadedShaders = ResourceManager::getInstance().getLoadedShaders();
-        static int currentShader = 0;
 
         static std::vector<std::string> loadedShaderNames;
         // Only update the vector if necesarry
@@ -137,6 +136,7 @@ void UIManager::DrawShaderPropertiesWindow()
                 }
             }
         }
+        static int currentShader = loadedShaderNames.size() - 1;
         
         ImGui::Text("Loaded shaders"); ImGui::SameLine();
         // NOTE: Maybe put this in a DrawWidgetCombo func of sorts
@@ -149,7 +149,7 @@ void UIManager::DrawShaderPropertiesWindow()
                 if(ImGui::Selectable(shaderName.c_str(), isSelected))
                 {
                     currentShader = i;
-                    // TODO: Notify the Scene to switch shaders
+                    Scene::getInstance().shader = const_cast<Shader*>(ResourceManager::getInstance().GetShader(shaderName));
                 }
             }
             ImGui::EndCombo(); 
