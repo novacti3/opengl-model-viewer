@@ -187,25 +187,15 @@ void UIManager::DrawShaderPropertiesWindow()
 #pragma region Widgets
 void UIManager::DrawWidgetFloat(const char* const label, float* const value)
 {
-    // FIXME: The text label probably didn't work because BeginGroup
-    // not only locks the X position of the elements but also because
-    // it makes the elements share states like IsItemHovered
-    // So yeah, delete the group stuff, maybe that'll fix things
-    ImGui::BeginGroup();
-
-    // ImGui::Text(label); ImGui::SameLine();
-    ImGui::DragFloat(label, value, 0.5f);
-    
-    ImGui::EndGroup();
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::DragFloat("", value, 0.5f);
 }
 void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
 {
-    ImGui::BeginGroup();
-  
-    // ImGui::Text(label); ImGui::SameLine();
-    ImGui::Checkbox(label, value);
-    
-    ImGui::EndGroup();
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::Checkbox("", value);
 }
 
 void UIManager::DrawWidgetVec3(const char* const label, float* const value)
@@ -250,12 +240,8 @@ void UIManager::DrawWidgetVec4(const char* const label, float* const value)
 
 void UIManager::DrawWidgetColor(const char* const label, float* const value)
 {
-    ImGui::BeginGroup();
-    
     ImGui::AlignTextToFramePadding();
-    //ImGui::Text(label); ImGui::SameLine();
-    ImGui::ColorEdit4(label, value);
-
-    ImGui::EndGroup();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::ColorEdit4("", value);
 }
 #pragma endregion
