@@ -49,6 +49,7 @@ list(APPEND SOURCES
     # project core sources
     src/core/resource_manager.cpp
     src/core/ui_manager.cpp
+    src/core/scene.cpp
 
     # project rendering sources
     src/rendering/renderer.cpp

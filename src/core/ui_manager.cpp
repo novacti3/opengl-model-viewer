@@ -145,19 +145,23 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
                 const std::string &shaderName = loadedShaderNames[i];
                 const bool isSelected = (currentShader == i);
                 if(ImGui::Selectable(shaderName.c_str(), isSelected))
+                {
                     currentShader = i;
                     // TODO: Notify the Scene to switch shaders
+                }
             }
             ImGui::EndCombo(); 
         }
         ImGui::SameLine();
         if(ImGui::Button("..."))
         {
-            auto shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
+            std::vector<std::string> shaders = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
+            // TODO: Notify ResourceManager to create a shader with the provided files
         }
 
         ImGui::Separator();
 
+        ImGui::Text("Shader uniforms:");
         // Shader uniforms display and editing
         for(std::shared_ptr<ShaderUniform> uniform: shader->getUniforms())
         {

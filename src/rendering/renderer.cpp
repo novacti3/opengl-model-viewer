@@ -139,7 +139,7 @@ void Renderer::DeInit()
 }
 
 
-void Renderer::DrawScene(Shader* const shader, Texture* const texture)
+void Renderer::DrawScene(const Scene &scene, Texture* const texture)
 {
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
     
@@ -152,10 +152,10 @@ void Renderer::DrawScene(Shader* const shader, Texture* const texture)
         (*texture).Bind();
     
     GL_CALL(glad_glBindVertexArray(VAO));
-    shader->Bind();
+    scene.shader->Bind();
     GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 36));
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-    shader->Unbind();
+    scene.shader->Unbind();
     GL_CALL(glad_glBindVertexArray(0));
     
     if(texture)

@@ -13,6 +13,7 @@
 #include "core/log.hpp"
 #include "core/resource_manager.hpp"
 #include "core/ui_manager.hpp"
+#include "core/scene.hpp"
 #include "rendering/renderer.hpp"
 #include "rendering/shader.hpp"
 
@@ -50,8 +51,8 @@ int main()
     UIManager::getInstance().Init(window);
     Renderer::getInstance().Init();
 
-    Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-color.vs", "../../../res/shaders/unlit-color.fs");
-    ResourceManager::getInstance().AddShader(shader, "unlit-color");
+    Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
+    ResourceManager::getInstance().AddShader(shader, "default");
 
     shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-tex.vs", "../../../res/shaders/unlit-tex.fs");
     ResourceManager::getInstance().AddShader(shader, "unlit-tex");

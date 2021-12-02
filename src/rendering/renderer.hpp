@@ -5,6 +5,7 @@
 
 #include "../misc/singleton.hpp"
 
+#include "../core/scene.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 
@@ -31,5 +32,5 @@ class Renderer : public Singleton<Renderer>
     public:
     void Init();
     void DeInit();
-    void DrawScene(Shader* const shader, Texture* const texture = nullptr);
+    void DrawScene(const Scene& scene, Texture* const texture = nullptr);
 };
