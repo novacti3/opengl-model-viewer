@@ -27,6 +27,7 @@ class ResourceManager final : public Singleton<ResourceManager>
     ResourceManager(ResourceManager&& other) = delete;
     ResourceManager& operator=(ResourceManager&& other) = delete;
 
+
     std::string ReadFile(const std::string &path);
 
     Shader *CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);

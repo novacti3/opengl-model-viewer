@@ -2,6 +2,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <pfd/portable-file-dialogs.h>
 
 #include <utility>
 
@@ -51,21 +52,28 @@ void UIManager::DrawUI(RendererSettings &rendererSettings, Shader* const shaderI
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+std::vector<std::string> UIManager::ShowFileDialog(const std::string &title, const std::vector<std::string> &filters, bool allowMultiSelect)
+{
+    return pfd::open_file(title, "", filters, allowMultiSelect).result();
+}
+
+#pragma region Menus
 void UIManager::DrawMainMenuBar()
 {
     ImGui::BeginMainMenuBar();
 
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem("Open file...", "CTRL+O", false, false))
+        if(ImGui::MenuItem("Open file...", "CTRL+O", false))
         {
-            // Open a file dialogue to let the user open a file
-            // WIP
+            // Open a file dialogue to let the user load a mesh
+            auto path = ShowFileDialog("Select mesh", {"All files", "*", "OBJ files", ".obj"});
+            // TODO: Notify the ResourceManager to load the provided mesh
         }
         if(ImGui::MenuItem("Close file", "CTRL+N", false, false))
         {
-            // Close the currently loaded file
-            // WIP
+            // Close the currently loaded mesh
+            // TODO: Unload model
         }
         ImGui::Separator();
         if(ImGui::MenuItem("Exit", "ESC", false, false))
@@ -125,6 +133,7 @@ void UIManager::DrawShaderPropertiesWindow(Shader* const shader)
     }
     ImGui::End();
 }
+#pragma endregion
 
 #pragma region Widgets
 void UIManager::DrawWidgetFloat(const char* const label, float* const value)

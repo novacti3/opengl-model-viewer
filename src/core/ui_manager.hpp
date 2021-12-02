@@ -27,6 +27,8 @@ class UIManager : public Singleton<UIManager>
 
 
     private:
+    std::vector<std::string> ShowFileDialog(const std::string &title, const std::vector<std::string> &filters = {"All files", "*"}, bool allowMultiSelect = false);
+
     void DrawMainMenuBar();
     void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
     void DrawShaderPropertiesWindow(Shader* const shader);
