@@ -66,6 +66,8 @@ int main()
     auto resShader = ResourceManager::getInstance().GetShader("unlit-tex");
     auto resTex = ResourceManager::getInstance().GetTexture("tile");
 
+    Scene::getInstance().shader = ResourceManager::getInstance().GetShader("unlit-tex")->get();
+    Scene::getInstance().textures.push_back(ResourceManager::getInstance().GetTexture("tile")->get());
 
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
@@ -96,10 +98,9 @@ int main()
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
-        resShader->get()->SetUniform("u_MVP", (void*)&MVP);  
+        Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
 
-        Renderer::getInstance().DrawScene(resShader->get(), resTex->get());
-
+        Renderer::getInstance().DrawScene();
         UIManager::getInstance().DrawUI(Renderer::getInstance().settings, resShader->get());
         
         glfwSwapBuffers(window);

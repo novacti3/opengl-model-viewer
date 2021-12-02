@@ -32,5 +32,5 @@ class Renderer : public Singleton<Renderer>
     public:
     void Init();
     void DeInit();
-    void DrawScene(const Scene& scene, Texture* const texture = nullptr);
+    void DrawScene();
 };

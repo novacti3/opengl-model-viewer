@@ -139,8 +139,10 @@ void Renderer::DeInit()
 }
 
 
-void Renderer::DrawScene(const Scene &scene, Texture* const texture)
+void Renderer::DrawScene()
 {
+    static Scene &scene = Scene::getInstance();
+
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
     
     GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -148,8 +150,13 @@ void Renderer::DrawScene(const Scene &scene, Texture* const texture)
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
-    if(texture)
-        (*texture).Bind();
+    if(!scene.textures.empty())
+    {
+        for (int i = 0; i < scene.textures.size(); i++)
+        {
+            scene.textures[i]->Bind();
+        }
+    }
     
     GL_CALL(glad_glBindVertexArray(VAO));
     scene.shader->Bind();
@@ -157,7 +164,12 @@ void Renderer::DrawScene(const Scene &scene, Texture* const texture)
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     scene.shader->Unbind();
     GL_CALL(glad_glBindVertexArray(0));
-    
-    if(texture)
-        (*texture).Unbind();
+
+    if(!scene.textures.empty())
+    {
+        for (int i = 0; i < scene.textures.size(); i++)
+        {
+            scene.textures[i]->Unbind();
+        }
+    }  
 };
