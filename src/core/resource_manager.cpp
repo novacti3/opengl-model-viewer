@@ -36,12 +36,17 @@ std::string ResourceManager::ReadFile(const std::string &path)
 }
 
 #pragma region Shaders
-Shader* ResourceManager::CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
+Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
 {
+    // Get rid of the file extension and get the name of the shader
+    std::vector<std::string> splitVertPath = SplitString(vertShaderPath, '/');
+    std::string shaderName = SplitString(splitVertPath[splitVertPath.size() - 1], '.')[0];
+
     std::string vertShaderSource = ReadFile(vertShaderPath);
     std::string fragShaderSource = ReadFile(fragShaderPath);
 
     Shader *shader = new Shader(vertShaderSource.c_str(), fragShaderSource.c_str());
+    AddLoadedShader(shader, shaderName);
     return shader;
 }
 
@@ -58,7 +63,7 @@ const Shader* const ResourceManager::GetShader(const std::string &name)
     return nullptr;
 }
 
-void ResourceManager::AddShader(Shader *shader, std::string name)
+void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 {
     std::unique_ptr<Shader> smartPtr(shader);
     _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
@@ -66,7 +71,7 @@ void ResourceManager::AddShader(Shader *shader, std::string name)
 #pragma endregion
 
 #pragma region Textures
-Texture* ResourceManager::CreateTextureFromFile(const std::string &path)
+Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
 {
     int width, height;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);
@@ -87,7 +92,7 @@ const Texture* const ResourceManager::GetTexture(const std::string &name)
     return nullptr;
 }
 
-void ResourceManager::AddTexture(Texture *texture, std::string name)
+void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
 {
     std::unique_ptr<Texture> smartPtr(texture);
     _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));

@@ -51,18 +51,8 @@ int main()
     UIManager::getInstance().Init(window);
     Renderer::getInstance().Init();
 
-    Shader *shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
-    ResourceManager::getInstance().AddShader(shader, "default");
-
-    shader = ResourceManager::getInstance().CreateShaderFromFiles("../../../res/shaders/unlit-tex.vs", "../../../res/shaders/unlit-tex.fs");
-    ResourceManager::getInstance().AddShader(shader, "unlit-tex");
-
-    Texture *tex = ResourceManager::getInstance().CreateTextureFromFile("../../../res/textures/tile.jpg");
-    ResourceManager::getInstance().AddTexture(tex, "tile");
-
-    Scene::getInstance().shader = const_cast<Shader*>(ResourceManager::getInstance().GetShader("default"));
-    Scene::getInstance().textures.push_back(const_cast<Texture*>(ResourceManager::getInstance().GetTexture("tile")));
-
+    Shader *defaultShader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
+    Scene::getInstance().shader = defaultShader;
 
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
