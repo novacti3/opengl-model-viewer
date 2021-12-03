@@ -55,7 +55,6 @@ Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, 
     AddLoadedShader(shader, shaderName);
     Log::LogInfo("Loaded new shader, name: '" + shaderName + "'");
     return shader;
-
 }
 
 const Shader* const ResourceManager::GetShader(const std::string &name)

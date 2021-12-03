@@ -7,6 +7,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include <pfd/portable-file-dialogs.h>
+
 #include <string>
 #include <iostream>
 
@@ -45,6 +47,12 @@ int main()
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         Log::LogFatal("glad failed to initialize. Exiting application...");
+        return -1;
+    }
+
+    if(!pfd::settings::available())
+    {
+        Log::LogFatal("No suitable file dialog backend available. Exiting application...");
         return -1;
     }
 
