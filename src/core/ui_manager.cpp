@@ -180,11 +180,11 @@ void UIManager::DrawShaderPropertiesWindow()
 
                 // NOTE: A debug warning of sorts that says that a shader couldn't be created
                 // because only one type of source file was provided would be cool to have
+                using FileNameAndExtensionPair = std::pair<std::string, std::string>;
                 int i = 0;
                 while(shaderPaths.size() > 0)
                 {
                     std::string path = shaderPaths[i];
-                    using FileNameAndExtensionPair = std::pair<std::string, std::string>;
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
 
                     for (const std::string &secondPath: shaderPaths)
@@ -228,24 +228,24 @@ void UIManager::DrawShaderPropertiesWindow()
 
         ImGui::Text("Shader uniforms:");
         // Shader uniforms display and editing
-        for(std::shared_ptr<ShaderUniform> uniform: Scene::getInstance().shader->getUniforms())
+        for(ShaderUniform* const uniform: Scene::getInstance().shader->getUniforms())
         {
-            switch(uniform.get()->getType())
+            switch(uniform->getType())
             {
                 case ShaderUniformType::INT:
-                    DrawWidgetInt(uniform.get()->getName().c_str(), (int*)uniform.get()->value);
+                    DrawWidgetInt(uniform->getName().c_str(), (int*)uniform->value);
                 break;
 
                 case ShaderUniformType::UINT:
-                    DrawWidgetUnsignedInt(uniform.get()->getName().c_str(), (unsigned int*)uniform.get()->value);
+                    DrawWidgetUnsignedInt(uniform->getName().c_str(), (unsigned int*)uniform->value);
                 break;
 
                 case ShaderUniformType::FLOAT:
-                    DrawWidgetFloat(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                    DrawWidgetFloat(uniform->getName().c_str(), (float*)uniform->value);
                 break;
 
                 case ShaderUniformType::BOOL:
-                    DrawWidgetCheckbox(uniform.get()->getName().c_str(), (bool*)uniform.get()->value);
+                    DrawWidgetCheckbox(uniform->getName().c_str(), (bool*)uniform->value);
                 break;
 
 
@@ -254,16 +254,16 @@ void UIManager::DrawShaderPropertiesWindow()
 
 
                 case ShaderUniformType::VEC2:
-                    DrawWidgetVec2(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                    DrawWidgetVec2(uniform->getName().c_str(), (float*)uniform->value);
                 break;
 
                 case ShaderUniformType::VEC3:
-                    DrawWidgetVec3(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                    DrawWidgetVec3(uniform->getName().c_str(), (float*)uniform->value);
                 break;
 
                 case ShaderUniformType::VEC4:
                     // TODO: Some sort of differenciation between regular vec4 and color
-                    DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                    DrawWidgetColor(uniform->getName().c_str(), (float*)uniform->value);
                 break;
 
 

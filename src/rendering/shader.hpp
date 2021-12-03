@@ -28,7 +28,15 @@ class Shader
     void Unbind() const;
 
     inline const unsigned int &getID() const { return _id; }
-    inline const std::vector<std::shared_ptr<ShaderUniform>> &getUniforms() const { return _uniforms; }
+    inline const std::vector<ShaderUniform*> getUniforms() const 
+    {
+        std::vector<ShaderUniform*> rawUniforms;
+        for(const auto &smartPtr: _uniforms)
+        {
+            rawUniforms.push_back(smartPtr.get());
+        }
+        return rawUniforms;
+    };
 
     void SetUniform(const std::string &name, const void* value)
     {
