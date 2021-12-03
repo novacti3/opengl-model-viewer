@@ -1,5 +1,7 @@
 #include "shader_uniform.hpp"
 
+#include "texture.hpp"
+
 ShaderUniform::ShaderUniform(): _name(""), _type(ShaderUniformType::UNDEFINED), value(nullptr) {}
 ShaderUniform::ShaderUniform(const std::string name, const ShaderUniformType type, void* value) 
     : _name(name), _type(type) 
@@ -22,14 +24,7 @@ ShaderUniform::ShaderUniform(const ShaderUniform& other)
     // not just make this instance's pointer point to the other,
     // because when either instance gets changed, the other instance's
     // value changes also
-    
-    switch(this->_type)
-    {
-        case ShaderUniformType::VEC4:
-        case ShaderUniformType::MAT4:
-            delete((float*)this->value);
-        break;
-    }
+    DeleteValuePtr();
     this->value = other.value;
 }
 ShaderUniform& ShaderUniform::operator=(ShaderUniform other)
@@ -40,7 +35,7 @@ ShaderUniform& ShaderUniform::operator=(ShaderUniform other)
     // not just make this instance's pointer point to the other,
     // because when either instance gets changed, the other instance's
     // value changes also
-    delete(this->value);
+    DeleteValuePtr();
     this->value = other.value;
     return *this;
 }
@@ -49,14 +44,7 @@ ShaderUniform::ShaderUniform(ShaderUniform&& other)
 {
     this->_name = std::move(other._name);
     this->_type = std::move(other._type);
-    
-    switch(this->_type)
-    {
-        case ShaderUniformType::VEC4:
-        case ShaderUniformType::MAT4:
-            delete((float*)this->value);
-        break;
-    }
+    DeleteValuePtr();
     this->value = other.value;
     other.value = nullptr;
 }
@@ -64,14 +52,7 @@ ShaderUniform& ShaderUniform::operator=(ShaderUniform&& other)
 {
     this->_name = std::move(other._name);
     this->_type = std::move(other._type);
-    
-    switch(this->_type)
-    {
-        case ShaderUniformType::VEC4:
-        case ShaderUniformType::MAT4:
-            delete((float*)this->value);
-        break;
-    }
+    DeleteValuePtr();
     this->value = other.value;
     other.value = nullptr;
     
@@ -82,9 +63,30 @@ void ShaderUniform::DeleteValuePtr()
 {
     switch(_type)
     {
+        case ShaderUniformType::INT:
+            delete((int*)this->value);
+        break;
+
+        case ShaderUniformType::UINT:
+            delete((unsigned int*)this->value);
+        break; 
+
+        case ShaderUniformType::BOOL:
+            delete((bool*)this->value);
+        break;
+
+        case ShaderUniformType::FLOAT:
+        case ShaderUniformType::VEC2:
+        case ShaderUniformType::VEC3:
         case ShaderUniformType::VEC4:
+        case ShaderUniformType::MAT2:
+        case ShaderUniformType::MAT3:
         case ShaderUniformType::MAT4:
-            delete((float*)value);
+            delete((float*)this->value);
+        break;
+
+        case ShaderUniformType::TEX2D:
+            delete((Texture*)this->value);
         break;
     }
 }
