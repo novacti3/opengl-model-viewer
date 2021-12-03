@@ -45,7 +45,7 @@ Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, 
     if(GetShader(shaderName) != nullptr)
     {
         Log::LogWarning("Stopped loading shader '" + shaderName + "' because it's been loaded already");
-        return nullptr;
+        return const_cast<Shader*>(GetShader(shaderName));
     }
 
     std::string vertShaderSource = ReadFile(vertShaderPath);
@@ -85,6 +85,12 @@ Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
 {
     std::vector<std::string> splitPath = SplitString(path, '/');
     std::string texName = SplitString(splitPath[splitPath.size() - 1], '.')[0];
+
+    if(GetTexture(texName) != nullptr)
+    {
+        Log::LogWarning("Stopped loading texture '" + texName + "' because it's been loaded already");
+        return const_cast<Texture*>(GetTexture(texName));
+    }
 
     int width, height;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);

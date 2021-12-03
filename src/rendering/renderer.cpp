@@ -155,9 +155,9 @@ void Renderer::DrawScene()
 
     if(!scene.textures.empty())
     {
-        for (int i = 0; i < scene.textures.size(); i++)
+        for(Texture* const tex: scene.textures)
         {
-            scene.textures[i]->Bind();
+            tex->Bind();
         }
     }
     else
@@ -172,9 +172,9 @@ void Renderer::DrawScene()
 
     if(!scene.textures.empty())
     {
-        for (int i = 0; i < scene.textures.size(); i++)
+        for(Texture* const tex: scene.textures)
         {
-            scene.textures[i]->Unbind();
+            tex->Unbind();
         }
     }
     else

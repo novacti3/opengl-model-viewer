@@ -143,12 +143,42 @@ void Shader::UpdateUniforms() const
         unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
         switch(uniform.get()->getType())
         {
+            case ShaderUniformType::INT:
+            case ShaderUniformType::BOOL:
+                GL_CALL(glad_glUniform1i(uniformLocation, *((int*)(uniform.get()->value))));
+            break;
+            case ShaderUniformType::UINT:
+                GL_CALL(glad_glUniform1ui(uniformLocation, *((unsigned int*)(uniform.get()->value))));
+            break;
+            case ShaderUniformType::FLOAT:
+                GL_CALL(glad_glUniform1f(uniformLocation, *((float*)(uniform.get()->value))));
+            break;
+
+
+            case ShaderUniformType::VEC2:
+                GL_CALL(glad_glUniform2fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+            break;
+            case ShaderUniformType::VEC3:
+                GL_CALL(glad_glUniform3fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+            break;
             case ShaderUniformType::VEC4:
                 GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform.get()->value)));
             break;
 
+
+            case ShaderUniformType::MAT2:
+                GL_CALL(glad_glUniformMatrix2fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+            break;
+            case ShaderUniformType::MAT3:
+                GL_CALL(glad_glUniformMatrix3fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+            break;
             case ShaderUniformType::MAT4:
                 GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+            break;
+
+
+            case ShaderUniformType::TEX2D:
+                GL_CALL(glad_glUniform1i(uniformLocation, ( (Texture*)(uniform.get()->value) )->getID()));
             break;
         }
     }

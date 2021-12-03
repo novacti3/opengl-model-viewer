@@ -249,11 +249,6 @@ void UIManager::DrawShaderPropertiesWindow()
                 break;
 
 
-                case ShaderUniformType::TEX2D:
-                    DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
-                break;
-
-
                 case ShaderUniformType::VEC2:
                     DrawWidgetVec2(uniform->getName().c_str(), (float*)uniform->value);
                 break;
@@ -276,6 +271,11 @@ void UIManager::DrawShaderPropertiesWindow()
 
                 case ShaderUniformType::MAT4:
                     // Draw a 4x4 InputFloat widget thing
+                break;
+
+
+                case ShaderUniformType::TEX2D:
+                    DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
                 break;
             }
         }
@@ -346,10 +346,27 @@ void UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
 
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    
+    // TODO: Figure out where to set the value of TEX2D type ShaderUniforms otherwise this is not gonna work
+    void *img = nullptr; 
     if(value->getID() != 0)
-        ImGui::ImageButton((void*)value->getID(), imgSize);
+    {
+        img = (void*)value->getID();
+    }
     else
-        ImGui::ImageButton((void*)missingImgTex.getID(), imgSize);
+    { 
+        img = (void*)missingImgTex.getID();
+    }
+    if(ImGui::ImageButton(img, imgSize))
+    {
+        std::string path = ShowFileDialog("Select texture", {"All files", "*", "JPEG", "*.jpg", "PNG", "*.png"})[0];
+        if(!path.empty())
+        {
+            Texture* const newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
+            if(newTex != nullptr)
+                Scene::getInstance().textures.push_back(newTex);
+        }
+    }
 }
 
 #pragma endregion
