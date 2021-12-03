@@ -250,6 +250,7 @@ void UIManager::DrawShaderPropertiesWindow()
 
 
                 case ShaderUniformType::TEX2D:
+                    DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
                 break;
 
 
@@ -284,6 +285,7 @@ void UIManager::DrawShaderPropertiesWindow()
 #pragma endregion
 
 #pragma region Widgets
+#pragma region Base types
 void UIManager::DrawWidgetInt(const char* const label, int* const value)
 {
     ImGui::AlignTextToFramePadding();
@@ -308,7 +310,9 @@ void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
     ImGui::Text(label); ImGui::SameLine();
     ImGui::Checkbox("", value);
 }
+#pragma endregion
 
+#pragma region Vectors
 void UIManager::DrawWidgetVec2(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
@@ -333,4 +337,19 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
     ImGui::Text(label); ImGui::SameLine();
     ImGui::ColorEdit4("", value);
 }
+#pragma endregion
+
+void UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
+{
+    static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
+    static ImVec2 imgSize(128.0f, 128.0f);
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    if(value->getID() != 0)
+        ImGui::ImageButton((void*)value->getID(), imgSize);
+    else
+        ImGui::ImageButton((void*)missingImgTex.getID(), imgSize);
+}
+
 #pragma endregion

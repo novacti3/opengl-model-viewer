@@ -8,6 +8,6 @@
 
 struct Scene: public Singleton<Scene>
 {
-    Shader *shader;
+    Shader *shader = nullptr;
     std::vector<Texture*> textures;
 };

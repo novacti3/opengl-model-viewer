@@ -83,10 +83,15 @@ void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 #pragma region Textures
 Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
 {
+    std::vector<std::string> splitPath = SplitString(path, '/');
+    std::string texName = SplitString(splitPath[splitPath.size() - 1], '.')[0];
+
     int width, height;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);
     Texture *tex = new Texture(GL_TEXTURE_2D, glm::vec2(width, height), GL_RGB, GL_RGB, (void*)data);
-    Log::LogInfo("Loaded new texture");
+    
+    AddLoadedTexture(tex, texName);
+    Log::LogInfo("Loaded new texture '" + texName + "'");
     return tex;
 }
 

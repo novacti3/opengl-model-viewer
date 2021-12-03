@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp> 
 
 #include "../core/log.hpp"
+#include "../core/resource_manager.hpp"
 
 
 struct Vertex
@@ -142,6 +143,8 @@ void Renderer::DeInit()
 void Renderer::DrawScene()
 {
     static Scene &scene = Scene::getInstance();
+    static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
+    static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
 
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
     
@@ -157,7 +160,9 @@ void Renderer::DrawScene()
             scene.textures[i]->Bind();
         }
     }
-    
+    else
+        missingTex.Bind();
+        
     GL_CALL(glad_glBindVertexArray(VAO));
     scene.shader->Bind();
     GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 36));
@@ -171,5 +176,7 @@ void Renderer::DrawScene()
         {
             scene.textures[i]->Unbind();
         }
-    }  
+    }
+    else
+        missingTex.Unbind();
 };

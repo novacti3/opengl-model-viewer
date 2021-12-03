@@ -3,7 +3,7 @@
 #include "core/log.hpp"
 #include "texture.hpp"
 
-Shader::Shader(const char *vertSource, const char *fragSource)
+Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
 {
     unsigned int vertShader, fragShader;
     

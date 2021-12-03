@@ -56,11 +56,13 @@ int main()
         return -1;
     }
 
+    Scene::getInstance().shader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
+    ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/ui_image_missing.jpg");
+    ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/tex_missing.jpg");
+    
     UIManager::getInstance().Init(window);
     Renderer::getInstance().Init();
 
-    Shader *defaultShader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
-    Scene::getInstance().shader = defaultShader;
 
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
@@ -91,8 +93,8 @@ int main()
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
+            
         Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
-
         Renderer::getInstance().DrawScene();
         UIManager::getInstance().DrawUI();
         

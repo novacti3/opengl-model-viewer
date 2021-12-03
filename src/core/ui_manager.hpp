@@ -42,4 +42,6 @@ class UIManager : public Singleton<UIManager>
     void DrawWidgetVec3(const char* const label, float* const value);
     void DrawWidgetVec4(const char* const label, float* const value);
     void DrawWidgetColor(const char* const label, float* const value);
+
+    void DrawWidgetTex2D(const char* const label, Texture* const value);
 };
