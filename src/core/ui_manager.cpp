@@ -226,9 +226,45 @@ void UIManager::DrawShaderPropertiesWindow()
         {
             switch(uniform.get()->getType())
             {
+                case ShaderUniformType::INT:
+                    DrawWidgetInt(uniform.get()->getName().c_str(), (int*)uniform.get()->value);
+                break;
+
+                case ShaderUniformType::UINT:
+                    DrawWidgetUnsignedInt(uniform.get()->getName().c_str(), (unsigned int*)uniform.get()->value);
+                break;
+
+                case ShaderUniformType::FLOAT:
+                    DrawWidgetFloat(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                break;
+
+                case ShaderUniformType::BOOL:
+                    DrawWidgetCheckbox(uniform.get()->getName().c_str(), (bool*)uniform.get()->value);
+                break;
+
+
+                case ShaderUniformType::TEX2D:
+                break;
+
+
+                case ShaderUniformType::VEC2:
+                    DrawWidgetVec2(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                break;
+
+                case ShaderUniformType::VEC3:
+                    DrawWidgetVec3(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                break;
+
                 case ShaderUniformType::VEC4:
                     // TODO: Some sort of differenciation between regular vec4 and color
-                    UIManager::DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                    DrawWidgetColor(uniform.get()->getName().c_str(), (float*)uniform.get()->value);
+                break;
+
+
+                case ShaderUniformType::MAT2:
+                break;
+
+                case ShaderUniformType::MAT3:
                 break;
 
                 case ShaderUniformType::MAT4:
@@ -242,6 +278,18 @@ void UIManager::DrawShaderPropertiesWindow()
 #pragma endregion
 
 #pragma region Widgets
+void UIManager::DrawWidgetInt(const char* const label, int* const value)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::DragInt("", value, 1);
+}
+void UIManager::DrawWidgetUnsignedInt(const char* const label, unsigned int* const value)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::DragInt("", (int*)value, 1, 0, UINT_MAX, "%i");
+}
 void UIManager::DrawWidgetFloat(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
@@ -255,46 +303,24 @@ void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
     ImGui::Checkbox("", value);
 }
 
-void UIManager::DrawWidgetVec3(const char* const label, float* const value)
+void UIManager::DrawWidgetVec2(const char* const label, float* const value)
 {
-    ImGui::BeginGroup();
-    
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
-    
-    ImGui::Text("X"); ImGui::SameLine();
-    ImGui::DragFloat("", value);
-
-    ImGui::Text("Y"); ImGui::SameLine();
-    ImGui::DragFloat("", value + sizeof(float));
-
-    ImGui::Text("Z"); ImGui::SameLine();
-    ImGui::DragFloat("", value + sizeof(float) * 2);
-
-    ImGui::EndGroup();
+    ImGui::DragFloat2("", value, 0.5f);
+}
+void UIManager::DrawWidgetVec3(const char* const label, float* const value)
+{
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text(label); ImGui::SameLine();
+    ImGui::DragFloat3("", value, 0.5f);
 }
 void UIManager::DrawWidgetVec4(const char* const label, float* const value)
 {
-    ImGui::BeginGroup();
-    
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
-    
-    ImGui::Text("X"); ImGui::SameLine();
-    ImGui::DragFloat("", value);
-
-    ImGui::Text("Y"); ImGui::SameLine();
-    ImGui::DragFloat("", value + sizeof(float));
-
-    ImGui::Text("Z"); ImGui::SameLine();
-    ImGui::DragFloat("", value + sizeof(float) * 2);
-
-    ImGui::Text("W"); ImGui::SameLine();
-    ImGui::DragFloat("", value + sizeof(float) * 3);
-
-    ImGui::EndGroup();
+    ImGui::DragFloat4("", value, 0.5f);
 }
-
 void UIManager::DrawWidgetColor(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();

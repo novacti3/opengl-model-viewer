@@ -33,11 +33,13 @@ class UIManager : public Singleton<UIManager>
     void DrawRendererPropertiesWindow();
     void DrawShaderPropertiesWindow();
 
+    void DrawWidgetInt(const char* const label, int* const value);
+    void DrawWidgetUnsignedInt(const char* const label, unsigned int* const value);
     void DrawWidgetFloat(const char* const label, float* const value);
     void DrawWidgetCheckbox(const char* const label, bool* const value);
 
+    void DrawWidgetVec2(const char* const label, float* const value);
     void DrawWidgetVec3(const char* const label, float* const value);
     void DrawWidgetVec4(const char* const label, float* const value);
-
     void DrawWidgetColor(const char* const label, float* const value);
 };
