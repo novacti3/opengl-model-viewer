@@ -178,13 +178,12 @@ void UIManager::DrawShaderPropertiesWindow()
                 using ShaderSourcePair = std::pair<std::string, std::string>;
                 std::vector<ShaderSourcePair> shaderSources;
 
-                // NOTE: This is absolutely not ideal. It could probably be done through some sort of sorting
-                // or filtering or whatever but I have a presentation to make and model loading to get working
-                // so if it works, it works and I can't be bothered to optimize this right now.
                 // NOTE: A debug warning of sorts that says that a shader couldn't be created
                 // because only one type of source file was provided would be cool to have
-                for(const std::string &path: shaderPaths)
+                int i = 0;
+                while(shaderPaths.size() > 0)
                 {
+                    std::string path = shaderPaths[i];
                     using FileNameAndExtensionPair = std::pair<std::string, std::string>;
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
 
@@ -192,6 +191,9 @@ void UIManager::DrawShaderPropertiesWindow()
                     {
                         FileNameAndExtensionPair secondFileNameAndExtension = ParseFileNameAndExtension(secondPath);
 
+                        if(secondPath.compare(path) == 0)
+                            continue;
+                        
                         if(fileNameAndExtension.first.compare(secondFileNameAndExtension.first) == 0)
                         {
                             if(fileNameAndExtension.second.compare(secondFileNameAndExtension.second) != 0)
@@ -205,10 +207,14 @@ void UIManager::DrawShaderPropertiesWindow()
                                 if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
                                 {
                                     shaderSources.push_back(newShader);
+                                    shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.first));
+                                    shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
+                                    break;
                                 }
                             }
                         }
                     }
+                    i = i < shaderPaths.size() ? i++ : shaderPaths.size();
                 }
 
                 for(const ShaderSourcePair &shaderSource: shaderSources)
