@@ -20,10 +20,7 @@ ShaderUniform::ShaderUniform(const ShaderUniform& other)
 {
     this->_name = other._name;
     this->_type = other._type;
-    // FIXME: This should copy the value of the pointer,
-    // not just make this instance's pointer point to the other,
-    // because when either instance gets changed, the other instance's
-    // value changes also
+    // FIXME: memcpy this shit
     DeleteValuePtr();
     this->value = other.value;
 }
@@ -31,10 +28,7 @@ ShaderUniform& ShaderUniform::operator=(ShaderUniform other)
 {
     this->_name = other._name;
     this->_type = other._type;
-    // FIXME: This should copy the value of the pointer,
-    // not just make this instance's pointer point to the other,
-    // because when either instance gets changed, the other instance's
-    // value changes also
+    // FIXME: memcpy this shit
     DeleteValuePtr();
     this->value = other.value;
     return *this;
@@ -44,6 +38,7 @@ ShaderUniform::ShaderUniform(ShaderUniform&& other)
 {
     this->_name = std::move(other._name);
     this->_type = std::move(other._type);
+    
     DeleteValuePtr();
     this->value = other.value;
     other.value = nullptr;
@@ -52,6 +47,7 @@ ShaderUniform& ShaderUniform::operator=(ShaderUniform&& other)
 {
     this->_name = std::move(other._name);
     this->_type = std::move(other._type);
+    
     DeleteValuePtr();
     this->value = other.value;
     other.value = nullptr;

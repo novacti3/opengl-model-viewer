@@ -5,8 +5,9 @@
 #include <glad/glad.h>
 #include <cstring>
 
-Texture::Texture(int target, glm::uvec2 size, int internalFormat, int format, const void *data)
-    : _target(std::move(target)), _size(std::move(size)), _internalFormat(std::move(internalFormat)), _format(std::move(format))
+Texture::Texture(): _target(0), _size(glm::vec2(0.0f)), _internalFormat(0), _format(0), data(nullptr){}
+Texture::Texture(int target, glm::uvec2 size, int internalFormat, int format, void* const data)
+    : _target(target), _size(size), _internalFormat(internalFormat), _format(format)
 {
     this->data = const_cast<void*>(data);
 

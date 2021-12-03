@@ -16,7 +16,8 @@ class Texture
     
     public:
     // TODO: Adjustable tex params
-    Texture(int target, glm::uvec2 size, int internalFormat, int format, const void *data = nullptr);
+    Texture();
+    Texture(int target, glm::uvec2 size, int internalFormat, int format, void* const data = nullptr);
     ~Texture();
     // Copy
     Texture(const Texture &other);

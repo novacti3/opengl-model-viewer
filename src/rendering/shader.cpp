@@ -1,6 +1,7 @@
 #include "shader.hpp"
 
 #include "core/log.hpp"
+#include "texture.hpp"
 
 Shader::Shader(const char *vertSource, const char *fragSource)
 {
@@ -41,26 +42,59 @@ Shader::Shader(const char *vertSource, const char *fragSource)
         std::string nameStr(name);
         delete name;
 
+        void *value = nullptr;
+        std::shared_ptr<ShaderUniform> uniform;
         switch((ShaderUniformType)type)
         {
-            case ShaderUniformType::VEC4:
-            {
-                float* value = new float[4];
-                GL_CALL(glad_glGetUniformfv(_id, i, value));
-                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
-                _uniforms.push_back(std::move(uniform));        
-            } 
+            case ShaderUniformType::INT:
+            case ShaderUniformType::BOOL:
+                value = (void*)new int;
+                GL_CALL(glad_glGetUniformiv(_id, i, (int*)value));
+            break;
+            case ShaderUniformType::UINT:
+                value = (void*)new unsigned int;
+                GL_CALL(glad_glGetUniformuiv(_id, i, (unsigned int*)value));
+            break;
+            case ShaderUniformType::FLOAT:
+                value = (void*)new float;
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));
             break;
             
+
+            case ShaderUniformType::VEC2:
+                value = (void*)new float[2];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));      
+            break;
+            case ShaderUniformType::VEC3:
+                value = (void*)new float[3];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));     
+            break;
+            case ShaderUniformType::VEC4:
+                value = (void*)new float[4];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));   
+            break;
+            
+
+            case ShaderUniformType::MAT2:  
+                value = (void*)new float[2*2];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));
+            break;
+            case ShaderUniformType::MAT3:  
+                value = (void*)new float[3*3];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));   
+            break;
             case ShaderUniformType::MAT4:  
-            {
-                float* value = new float[4*4];
-                GL_CALL(glad_glGetUniformfv(_id, i, value));
-                std::shared_ptr<ShaderUniform> uniform(new ShaderUniform(nameStr, (ShaderUniformType)type, (void*)value));     
-                _uniforms.push_back(std::move(uniform));        
-            }
+                value = (void*)new float[4*4];
+                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value)); 
+            break;
+
+
+            case ShaderUniformType::TEX2D:
+                value = (void*)new Texture;
             break;
         }
+        uniform = std::make_shared<ShaderUniform>(nameStr, (ShaderUniformType)type, (void*)value);
+        _uniforms.push_back(std::move(uniform));    
     }
 }
 Shader::~Shader()
