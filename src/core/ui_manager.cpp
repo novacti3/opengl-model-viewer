@@ -275,7 +275,15 @@ void UIManager::DrawShaderPropertiesWindow()
 
 
                 case ShaderUniformType::TEX2D:
-                    DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
+                    Texture *newTex = DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
+                    if(newTex != nullptr)
+                    {
+                        if(((Texture*)(uniform->value))->getID() == 0)
+                        {
+                            delete((Texture*)(uniform->value));
+                        }
+                        uniform->value = (void*)newTex;
+                    }
                 break;
             }
         }
@@ -339,7 +347,7 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
 }
 #pragma endregion
 
-void UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
+Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
 {
     static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
     static ImVec2 imgSize(128.0f, 128.0f);
@@ -364,9 +372,15 @@ void UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
         {
             Texture* const newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
             if(newTex != nullptr)
+            {
                 Scene::getInstance().textures.push_back(newTex);
+                return newTex;
+            }
         }
     }
+
+    return nullptr;
+    // NOTE: A combo to pick already loaded textures might be cool
 }
 
 #pragma endregion

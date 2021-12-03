@@ -175,11 +175,6 @@ void Shader::UpdateUniforms() const
             case ShaderUniformType::MAT4:
                 GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
             break;
-
-
-            case ShaderUniformType::TEX2D:
-                GL_CALL(glad_glUniform1i(uniformLocation, ( (Texture*)(uniform.get()->value) )->getID()));
-            break;
         }
     }
 }

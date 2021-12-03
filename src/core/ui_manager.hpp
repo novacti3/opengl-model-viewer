@@ -7,6 +7,7 @@
 #include "../misc/singleton.hpp"
 #include "../rendering/renderer.hpp"
 #include "../rendering/shader.hpp"
+#include "../rendering/texture.hpp"
 
 class UIManager : public Singleton<UIManager>
 {
@@ -43,5 +44,5 @@ class UIManager : public Singleton<UIManager>
     void DrawWidgetVec4(const char* const label, float* const value);
     void DrawWidgetColor(const char* const label, float* const value);
 
-    void DrawWidgetTex2D(const char* const label, Texture* const value);
+    Texture* DrawWidgetTex2D(const char* const label, Texture* const value);
 };
