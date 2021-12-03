@@ -42,12 +42,20 @@ Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, 
     std::vector<std::string> splitVertPath = SplitString(vertShaderPath, '/');
     std::string shaderName = SplitString(splitVertPath[splitVertPath.size() - 1], '.')[0];
 
+    if(GetShader(shaderName) != nullptr)
+    {
+        Log::LogWarning("Stopped loading shader '" + shaderName + "' because it's been loaded already");
+        return nullptr;
+    }
+
     std::string vertShaderSource = ReadFile(vertShaderPath);
     std::string fragShaderSource = ReadFile(fragShaderPath);
 
     Shader *shader = new Shader(vertShaderSource.c_str(), fragShaderSource.c_str());
     AddLoadedShader(shader, shaderName);
+    Log::LogInfo("Loaded new shader, name: '" + shaderName + "'");
     return shader;
+
 }
 
 const Shader* const ResourceManager::GetShader(const std::string &name)
@@ -59,14 +67,17 @@ const Shader* const ResourceManager::GetShader(const std::string &name)
             return _loadedShaders[shader.first].get();
         }
     }
-    Log::LogError("Couldn't find shader " + name + " among loaded shaders");
+    Log::LogWarning("Couldn't find shader '" + name + "' among loaded shaders");
     return nullptr;
 }
 
 void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 {
-    std::unique_ptr<Shader> smartPtr(shader);
-    _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+    if(shader != nullptr)
+    {
+        std::unique_ptr<Shader> smartPtr(shader);
+        _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+    }
 }
 #pragma endregion
 
@@ -76,6 +87,7 @@ Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
     int width, height;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);
     Texture *tex = new Texture(GL_TEXTURE_2D, glm::vec2(width, height), GL_RGB, GL_RGB, (void*)data);
+    Log::LogInfo("Loaded new texture");
     return tex;
 }
 
@@ -88,13 +100,16 @@ const Texture* const ResourceManager::GetTexture(const std::string &name)
             return _loadedTextures[tex.first].get();
         }
     }
-    Log::LogError("Couldn't find texture " + name + " among loaded textures");
+    Log::LogWarning("Couldn't find texture '" + name + "' among loaded textures");
     return nullptr;
 }
 
 void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
 {
-    std::unique_ptr<Texture> smartPtr(texture);
-    _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
+    if(texture != nullptr)
+    {
+        std::unique_ptr<Texture> smartPtr(texture);
+        _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
+    }
 }
 #pragma endregion

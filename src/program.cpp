@@ -26,7 +26,7 @@ int main()
 #ifdef _DEBUG
     Log::SetLogLevelFilter(LogLevel::Info);
 #else
-    Log::SetLogLevelFilter(LogLevel::Warning);
+    Log::SetLogLevelFilter(LogLevel::Info);
 #endif
 
     if(!glfwInit())

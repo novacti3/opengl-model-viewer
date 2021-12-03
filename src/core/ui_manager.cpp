@@ -175,31 +175,45 @@ void UIManager::DrawShaderPropertiesWindow()
                     }
                 } ParseFileNameAndExtension;
 
-                using ShaderSources = std::pair<std::string, std::string>;
-                std::vector<ShaderSources> shaderSources;
+                using ShaderSourcePair = std::pair<std::string, std::string>;
+                std::vector<ShaderSourcePair> shaderSources;
 
+                // NOTE: This is absolutely not ideal. It could probably be done through some sort of sorting
+                // or filtering or whatever but I have a presentation to make and model loading to get working
+                // so if it works, it works and I can't be bothered to optimize this right now.
+                // NOTE: A debug warning of sorts that says that a shader couldn't be created
+                // because only one type of source file was provided would be cool to have
                 for(const std::string &path: shaderPaths)
                 {
-                    std::pair<std::string, std::string> fileNameAndExtension = ParseFileNameAndExtension(path);
+                    using FileNameAndExtensionPair = std::pair<std::string, std::string>;
+                    FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
 
-                    if(fileNameAndExtension.second.compare("vs") == 0)
+                    for (const std::string &secondPath: shaderPaths)
                     {
-                        for (const std::string &path: shaderPaths)
+                        FileNameAndExtensionPair secondFileNameAndExtension = ParseFileNameAndExtension(secondPath);
+
+                        if(fileNameAndExtension.first.compare(secondFileNameAndExtension.first) == 0)
                         {
-                            continue;
+                            if(fileNameAndExtension.second.compare(secondFileNameAndExtension.second) != 0)
+                            {
+                                ShaderSourcePair newShader;
+                                if(fileNameAndExtension.second.compare("vs") == 0)
+                                    newShader = make_pair(path, secondPath);
+                                else if(fileNameAndExtension.second.compare("fs") == 0)
+                                    newShader = make_pair(secondPath, path);
+
+                                if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
+                                {
+                                    shaderSources.push_back(newShader);
+                                }
+                            }
                         }
                     }
-                    else if(fileNameAndExtension.second.compare("fs") == 0)
-                    {
-                        for (const std::string &path: shaderPaths)
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        Log::LogError("Couldn't create shader " + fileNameAndExtension.first + ", only " + fileNameAndExtension.second + " source file provided");
-                    }
+                }
+
+                for(const ShaderSourcePair &shaderSource: shaderSources)
+                {
+                    ResourceManager::getInstance().LoadShaderFromFiles(shaderSource.first, shaderSource.second);
                 }
             }
         }
