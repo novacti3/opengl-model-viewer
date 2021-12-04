@@ -194,13 +194,11 @@ void UIManager::DrawShaderPropertiesWindow()
                 using ShaderSourcePair = std::pair<std::string, std::string>;
                 std::vector<ShaderSourcePair> shaderSources;
 
-                // NOTE: A debug warning of sorts that says that a shader couldn't be created
-                // because only one type of source file was provided would be cool to have
                 using FileNameAndExtensionPair = std::pair<std::string, std::string>;
+
                 int i = 0;
                 while(shaderPaths.size() > 0)
                 {
-                    // FIXME: Program crashes when supplied with only one type of shader (eg. only .vs or only .fs)
                     std::string path = shaderPaths[i];
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
 
@@ -208,8 +206,8 @@ void UIManager::DrawShaderPropertiesWindow()
                     {
                         FileNameAndExtensionPair secondFileNameAndExtension = ParseFileNameAndExtension(secondPath);
 
-                        if(secondPath.compare(path) == 0)
-                            continue;
+                        // if(secondPath.compare(path) == 0)
+                        //     continue;
                         
                         if(fileNameAndExtension.first.compare(secondFileNameAndExtension.first) == 0)
                         {
@@ -229,6 +227,26 @@ void UIManager::DrawShaderPropertiesWindow()
                                     break;
                                 }
                             }
+                            else if(secondPath.compare(path) == 0)
+                            {
+                                ShaderSourcePair newShader;
+                                if(fileNameAndExtension.second.compare("vs") == 0)
+                                    newShader = make_pair(path, "");
+                                else if(fileNameAndExtension.second.compare("fs") == 0)
+                                    newShader = make_pair("", path);
+
+                                if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
+                                {
+                                    shaderSources.push_back(newShader);
+                                    
+                                    if(fileNameAndExtension.second.compare("vs") == 0)
+                                        shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.first));
+                                    else if(fileNameAndExtension.second.compare("fs") == 0)
+                                        shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
+                                    
+                                    break;
+                                }                                
+                            }
                         }
                     }
                     i = i < shaderPaths.size() ? i++ : shaderPaths.size();
@@ -236,6 +254,13 @@ void UIManager::DrawShaderPropertiesWindow()
 
                 for(const ShaderSourcePair &shaderSource: shaderSources)
                 {
+                    if(shaderSource.first.empty() || shaderSource.second.empty())
+                    {
+                        FileNameAndExtensionPair fileNameAndExtension = !shaderSource.first.empty() ? ParseFileNameAndExtension(shaderSource.first) : ParseFileNameAndExtension(shaderSource.second);
+                        Log::LogError("Cannot load shader '" + fileNameAndExtension.first + "', only " + fileNameAndExtension.second + " shader provided");
+                        continue;
+                    }
+
                     ResourceManager::getInstance().LoadShaderFromFiles(shaderSource.first, shaderSource.second);
                 }
             }
@@ -399,8 +424,10 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
         }
     }
 
+    // TODO: A combo to pick already loaded textures like it is with the shaders
+    // TODO: Unload texture button
+
     return nullptr;
-    // NOTE: A combo to pick already loaded textures might be cool
 }
 
 #pragma endregion
