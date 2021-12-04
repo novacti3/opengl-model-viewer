@@ -155,6 +155,7 @@ void Renderer::DrawScene()
 
     if(!scene.textures.empty())
     {
+        // TODO: Bind each texture to its own GL_TEXTUREi target (eg. first one to GL_TEXTURE0, second one to GL_TEXTURE1 and so on)
         for(Texture* const tex: scene.textures)
         {
             tex->Bind();
@@ -164,7 +165,12 @@ void Renderer::DrawScene()
         missingTex.Bind();
         
     GL_CALL(glad_glBindVertexArray(VAO));
+    
+    if(scene.shader == nullptr)
+        scene.shader = const_cast<Shader*>(&defaultShader);
+
     scene.shader->Bind();
+    
     GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 36));
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     scene.shader->Unbind();

@@ -18,3 +18,18 @@ inline std::vector<std::string> SplitString(const std::string &string, const cha
 
    return tokens;
 }
+
+// Code from https://www.geeksforgeeks.org/how-to-find-index-of-a-given-element-in-a-vector-in-cpp/
+template<typename T>
+inline int FindIndexOfElement(const std::vector<T> &vector, const T &value)
+{
+   int index = 0;
+
+   auto it = std::find(vector.begin(), vector.end(), value);
+   if(it != vector.end())
+      index = it - vector.begin();
+   else
+      index = -1;
+   
+   return index;   
+}

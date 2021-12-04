@@ -139,8 +139,9 @@ void UIManager::DrawShaderPropertiesWindow()
             }
         }
         static int currentShader = loadedShaderNames.size() - 1;
-        
+
         ImGui::Text("Loaded shaders"); ImGui::SameLine();
+        ImGui::SetNextItemWidth(ImGui::GetWindowWidth()/2);
         // NOTE: Maybe put this in a DrawWidgetCombo func of sorts
         if(ImGui::BeginCombo("", loadedShaderNames[currentShader].c_str()))
         {
@@ -156,6 +157,21 @@ void UIManager::DrawShaderPropertiesWindow()
             }
             ImGui::EndCombo(); 
         }
+        
+        ImGui::SameLine();
+        if(ImGui::Button("X"))
+        {
+            const std::string &currentShaderName = loadedShaderNames[currentShader];
+            if(currentShaderName != "default")
+            {
+                Scene::getInstance().shader = nullptr;
+                ResourceManager::getInstance().UnloadShader(currentShaderName);
+                
+                int defaultShaderIndex = FindIndexOfElement<std::string>(loadedShaderNames, "default");
+                currentShader = defaultShaderIndex != -1 ? defaultShaderIndex : 0;
+            }
+        }
+        
         ImGui::SameLine();
         if(ImGui::Button("..."))
         {
@@ -184,6 +200,7 @@ void UIManager::DrawShaderPropertiesWindow()
                 int i = 0;
                 while(shaderPaths.size() > 0)
                 {
+                    // FIXME: Program crashes when supplied with only one type of shader (eg. only .vs or only .fs)
                     std::string path = shaderPaths[i];
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
 
@@ -227,64 +244,67 @@ void UIManager::DrawShaderPropertiesWindow()
         ImGui::Separator();
 
         ImGui::Text("Shader uniforms:");
-        // Shader uniforms display and editing
-        for(ShaderUniform* const uniform: Scene::getInstance().shader->getUniforms())
+        if(Scene::getInstance().shader != nullptr)
         {
-            switch(uniform->getType())
+            // Shader uniforms display and editing
+            for(ShaderUniform* const uniform: Scene::getInstance().shader->getUniforms())
             {
-                case ShaderUniformType::INT:
-                    DrawWidgetInt(uniform->getName().c_str(), (int*)uniform->value);
-                break;
+                switch(uniform->getType())
+                {
+                    case ShaderUniformType::INT:
+                        DrawWidgetInt(uniform->getName().c_str(), (int*)uniform->value);
+                    break;
 
-                case ShaderUniformType::UINT:
-                    DrawWidgetUnsignedInt(uniform->getName().c_str(), (unsigned int*)uniform->value);
-                break;
+                    case ShaderUniformType::UINT:
+                        DrawWidgetUnsignedInt(uniform->getName().c_str(), (unsigned int*)uniform->value);
+                    break;
 
-                case ShaderUniformType::FLOAT:
-                    DrawWidgetFloat(uniform->getName().c_str(), (float*)uniform->value);
-                break;
+                    case ShaderUniformType::FLOAT:
+                        DrawWidgetFloat(uniform->getName().c_str(), (float*)uniform->value);
+                    break;
 
-                case ShaderUniformType::BOOL:
-                    DrawWidgetCheckbox(uniform->getName().c_str(), (bool*)uniform->value);
-                break;
-
-
-                case ShaderUniformType::VEC2:
-                    DrawWidgetVec2(uniform->getName().c_str(), (float*)uniform->value);
-                break;
-
-                case ShaderUniformType::VEC3:
-                    DrawWidgetVec3(uniform->getName().c_str(), (float*)uniform->value);
-                break;
-
-                case ShaderUniformType::VEC4:
-                    // TODO: Some sort of differenciation between regular vec4 and color
-                    DrawWidgetColor(uniform->getName().c_str(), (float*)uniform->value);
-                break;
+                    case ShaderUniformType::BOOL:
+                        DrawWidgetCheckbox(uniform->getName().c_str(), (bool*)uniform->value);
+                    break;
 
 
-                case ShaderUniformType::MAT2:
-                break;
+                    case ShaderUniformType::VEC2:
+                        DrawWidgetVec2(uniform->getName().c_str(), (float*)uniform->value);
+                    break;
 
-                case ShaderUniformType::MAT3:
-                break;
+                    case ShaderUniformType::VEC3:
+                        DrawWidgetVec3(uniform->getName().c_str(), (float*)uniform->value);
+                    break;
 
-                case ShaderUniformType::MAT4:
-                    // Draw a 4x4 InputFloat widget thing
-                break;
+                    case ShaderUniformType::VEC4:
+                        // TODO: Some sort of differenciation between regular vec4 and color
+                        DrawWidgetColor(uniform->getName().c_str(), (float*)uniform->value);
+                    break;
 
 
-                case ShaderUniformType::TEX2D:
-                    Texture *newTex = DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
-                    if(newTex != nullptr)
-                    {
-                        if(((Texture*)(uniform->value))->getID() == 0)
+                    case ShaderUniformType::MAT2:
+                    break;
+
+                    case ShaderUniformType::MAT3:
+                    break;
+
+                    case ShaderUniformType::MAT4:
+                        // Draw a 4x4 InputFloat widget thing
+                    break;
+
+
+                    case ShaderUniformType::TEX2D:
+                        Texture *newTex = DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
+                        if(newTex != nullptr)
                         {
-                            delete((Texture*)(uniform->value));
+                            if(((Texture*)(uniform->value))->getID() == 0)
+                            {
+                                delete((Texture*)(uniform->value));
+                            }
+                            uniform->value = (void*)newTex;
                         }
-                        uniform->value = (void*)newTex;
-                    }
-                break;
+                    break;
+                }
             }
         }
     }

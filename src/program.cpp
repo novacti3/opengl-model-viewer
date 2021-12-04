@@ -93,8 +93,9 @@ int main()
         modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         
         MVP = projMatrix * viewMatrix * modelMatrix;
-            
-        Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
+        
+        if(Scene::getInstance().shader != nullptr)
+            Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
         Renderer::getInstance().DrawScene();
         UIManager::getInstance().DrawUI();
         

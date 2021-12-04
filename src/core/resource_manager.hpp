@@ -39,8 +39,10 @@ class ResourceManager final : public Singleton<ResourceManager>
     Shader *LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);
     const Shader* const GetShader(const std::string &name);
     void AddLoadedShader(Shader *shader, std::string name);
+    void UnloadShader(const std::string &name);
 
     Texture *LoadTextureFromFile(const std::string &path);
     const Texture* const GetTexture(const std::string &name);
     void AddLoadedTexture(Texture *texture, std::string name);
+    void UnloadTexture(const std::string &name);
 };

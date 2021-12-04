@@ -78,6 +78,22 @@ void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
         _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
     }
 }
+void ResourceManager::UnloadShader(const std::string &name)
+{
+    for(const auto &shader: _loadedShaders)
+    {
+        if(shader.first.compare(name) == 0)
+        {
+            shader.second.get()->Unbind();
+            // delete shader.second.get();
+            _loadedShaders.erase(shader.first);
+            Log::LogInfo("Unloaded shader '" + name + "'");
+            return;
+        }
+    }
+
+    Log::LogInfo("Failed unloading shader '" + name +"', shader not among loaded shaders");
+}
 #pragma endregion
 
 #pragma region Textures
@@ -121,5 +137,21 @@ void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
         std::unique_ptr<Texture> smartPtr(texture);
         _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
     }
+}
+
+void ResourceManager::UnloadTexture(const std::string &name)
+{
+    for(const auto &tex: _loadedTextures)
+    {
+        if(tex.first.compare(name) == 0)
+        {
+            delete tex.second.get();
+            _loadedTextures.erase(name);
+            Log::LogInfo("Unloaded texture '" + name + "'");
+            return;
+        }
+    }
+
+    Log::LogInfo("Failed unloading texture '" + name +"', texture not among loaded textures");
 }
 #pragma endregion
