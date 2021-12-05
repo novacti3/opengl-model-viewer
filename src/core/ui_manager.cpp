@@ -197,6 +197,8 @@ void UIManager::DrawShaderPropertiesWindow()
 
                 using FileNameAndExtensionPair = std::pair<std::string, std::string>;
 
+                // FIXME: Implement a check that prevents the user to load different files other than .vs and .fs
+                // because loading an image for example causes a crash and that's not very cool
                 int i = 0;
                 while(shaderPaths.size() > 0)
                 {
@@ -388,8 +390,8 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
 
 Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
 {
-    static auto &texturesInScene = Scene::getInstance().textures;
-    static auto &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
+    auto &texturesInScene = Scene::getInstance().textures;
+    auto &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
     static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
     static ImVec2 imgSize(128.0f, 128.0f);
 
@@ -422,7 +424,6 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
         }
     }
 
-    // TODO: Unload texture button
     ImGui::SameLine();
     // NOTE: Just doing if(ImGui::Button) didn't work here for some reason so workaround it is
     ImGui::Button("X");

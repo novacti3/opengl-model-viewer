@@ -56,8 +56,7 @@ int main()
         return -1;
     }
 
-    /*Scene::getInstance().shader =*/ ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
-    Scene::getInstance().shader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/unlit-tex.vs", "../../../res/shaders/unlit-tex.fs");
+    Scene::getInstance().shader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
     ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/ui_image_missing.jpg");
     ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/tex_missing.jpg");
     
