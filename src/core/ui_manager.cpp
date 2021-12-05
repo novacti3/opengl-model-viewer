@@ -122,6 +122,7 @@ void UIManager::DrawShaderPropertiesWindow()
 {
     if(ImGui::Begin("Shader properties", &_showShaderProperties, _windowFlags))
     {
+        // NOTE: Putting all of this combo stuff into a DrawWidgetCombo func would be great
         static const LoadedShadersMap &loadedShaders = ResourceManager::getInstance().getLoadedShaders();
 
         static std::vector<std::string> loadedShaderNames;
@@ -201,54 +202,47 @@ void UIManager::DrawShaderPropertiesWindow()
                 {
                     std::string path = shaderPaths[i];
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
+                    
+                    std::string secondShaderPath = path;
+                    secondShaderPath = path.substr(0, path.length() - 3);
 
-                    for (const std::string &secondPath: shaderPaths)
+                    ShaderSourcePair newShader;
+                    if(fileNameAndExtension.second == "fs")
                     {
-                        FileNameAndExtensionPair secondFileNameAndExtension = ParseFileNameAndExtension(secondPath);
+                        secondShaderPath += ".vs";
+                        auto it = std::find(shaderPaths.begin(), shaderPaths.end(), secondShaderPath);
 
-                        // if(secondPath.compare(path) == 0)
-                        //     continue;
-                        
-                        if(fileNameAndExtension.first.compare(secondFileNameAndExtension.first) == 0)
+                        if(it != shaderPaths.end())
                         {
-                            if(fileNameAndExtension.second.compare(secondFileNameAndExtension.second) != 0)
-                            {
-                                ShaderSourcePair newShader;
-                                if(fileNameAndExtension.second.compare("vs") == 0)
-                                    newShader = make_pair(path, secondPath);
-                                else if(fileNameAndExtension.second.compare("fs") == 0)
-                                    newShader = make_pair(secondPath, path);
-
-                                if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
-                                {
-                                    shaderSources.push_back(newShader);
-                                    shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.first));
-                                    shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
-                                    break;
-                                }
-                            }
-                            else if(secondPath.compare(path) == 0)
-                            {
-                                ShaderSourcePair newShader;
-                                if(fileNameAndExtension.second.compare("vs") == 0)
-                                    newShader = make_pair(path, "");
-                                else if(fileNameAndExtension.second.compare("fs") == 0)
-                                    newShader = make_pair("", path);
-
-                                if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
-                                {
-                                    shaderSources.push_back(newShader);
-                                    
-                                    if(fileNameAndExtension.second.compare("vs") == 0)
-                                        shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.first));
-                                    else if(fileNameAndExtension.second.compare("fs") == 0)
-                                        shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
-                                    
-                                    break;
-                                }                                
-                            }
+                            newShader = newShader = make_pair(secondShaderPath, path);
                         }
+                        else
+                            newShader = newShader = make_pair("", path);
                     }
+                    else if(fileNameAndExtension.second == "vs")
+                    {
+                        secondShaderPath += ".fs";
+                        auto it = std::find(shaderPaths.begin(), shaderPaths.end(), secondShaderPath);
+
+                        if(it != shaderPaths.end())
+                        {
+                            newShader = newShader = make_pair(path, secondShaderPath);
+                        }
+                        else
+                            newShader = newShader = make_pair(path, "");
+                    }
+
+                    if(std::find(shaderSources.begin(), shaderSources.end(), newShader) == shaderSources.end())
+                    {
+                        shaderSources.push_back(newShader);
+                        
+                        if(newShader.first != "")
+                            shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.first));
+                        
+                        if(newShader.second != "")
+                            shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
+                    }
+                    
                     i = i < shaderPaths.size() ? i++ : shaderPaths.size();
                 }
 
@@ -394,13 +388,13 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
 
 Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
 {
+    static const LoadedTexturesMap &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
     static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
     static ImVec2 imgSize(128.0f, 128.0f);
 
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
     
-    // TODO: Figure out where to set the value of TEX2D type ShaderUniforms otherwise this is not gonna work
     void *img = nullptr; 
     if(value->getID() != 0)
     {
@@ -424,8 +418,8 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
         }
     }
 
-    // TODO: A combo to pick already loaded textures like it is with the shaders
     // TODO: Unload texture button
+    // NOTE: A combo to pick already loaded textures like it is with the shaders
 
     return nullptr;
 }
