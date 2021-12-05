@@ -145,7 +145,7 @@ void ResourceManager::UnloadTexture(const std::string &name)
     {
         if(tex.first.compare(name) == 0)
         {
-            delete tex.second.get();
+            // delete tex.second.get();
             _loadedTextures.erase(name);
             Log::LogInfo("Unloaded texture '" + name + "'");
             return;

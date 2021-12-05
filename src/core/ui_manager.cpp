@@ -242,7 +242,7 @@ void UIManager::DrawShaderPropertiesWindow()
                         if(newShader.second != "")
                             shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), newShader.second));
                     }
-                    
+
                     i = i < shaderPaths.size() ? i++ : shaderPaths.size();
                 }
 
@@ -388,7 +388,8 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
 
 Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
 {
-    static const LoadedTexturesMap &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
+    static auto &texturesInScene = Scene::getInstance().textures;
+    static auto &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
     static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
     static ImVec2 imgSize(128.0f, 128.0f);
 
@@ -412,13 +413,43 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
             Texture* const newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
             if(newTex != nullptr)
             {
-                Scene::getInstance().textures.push_back(newTex);
+                auto it = std::find(texturesInScene.begin(), texturesInScene.end(), newTex);
+                if(it == texturesInScene.end())
+                    texturesInScene.push_back(newTex);
+                
                 return newTex;
             }
         }
     }
 
     // TODO: Unload texture button
+    ImGui::SameLine();
+    // NOTE: Just doing if(ImGui::Button) didn't work here for some reason so workaround it is
+    ImGui::Button("X");
+    if(ImGui::IsItemActivated())
+    {
+        if(value->getID() != 0 && value->getID() != missingImgTex.getID())
+        {
+            auto texIt = std::find(texturesInScene.begin(), texturesInScene.end(), value);
+            if(texIt != texturesInScene.end())
+                *texIt = nullptr;
+
+            std::string texKey;
+            for(const auto &entry: loadedTextures)
+            {
+                if(entry.second.get() == value)
+                {
+                    texKey = entry.first;
+                    break;
+                }
+            }
+            
+            ResourceManager::getInstance().UnloadTexture(texKey);
+
+            return const_cast<Texture*>(ResourceManager::getInstance().GetTexture("tex_missing"));
+        }
+    }
+
     // NOTE: A combo to pick already loaded textures like it is with the shaders
 
     return nullptr;

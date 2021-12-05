@@ -143,6 +143,8 @@ void Renderer::DeInit()
 void Renderer::DrawScene()
 {
     static Scene &scene = Scene::getInstance();
+    static auto &shaderUniforms = scene.shader->getUniforms();
+
     static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
     static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
 
@@ -155,14 +157,35 @@ void Renderer::DrawScene()
 
     if(!scene.textures.empty())
     {
-        // TODO: Bind each texture to its own GL_TEXTUREi target (eg. first one to GL_TEXTURE0, second one to GL_TEXTURE1 and so on)
-        for(Texture* const tex: scene.textures)
+        int numOfTextureShaderUniforms = 0;
+        std::vector<int> textureUniformIndexes;
+        for (int i = 0; i < shaderUniforms.size(); i++)
         {
-            tex->Bind();
+            if(shaderUniforms[i]->getType() == ShaderUniformType::TEX2D)
+            {
+                textureUniformIndexes.push_back(i);
+                numOfTextureShaderUniforms++;
+            }
+        }
+        
+
+        for (int i = 0; i < scene.textures.size() && i < numOfTextureShaderUniforms && i < 32; i++)
+        {
+            GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
+            
+            const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
+            textureUniformIndexes.erase(textureUniformIndexes.begin());
+            if(tex != nullptr)
+                tex->Bind();
+            else
+                missingTex.Bind();
         }
     }
     else
+    {
+        GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
         missingTex.Bind();
+    }
         
     GL_CALL(glad_glBindVertexArray(VAO));
     
@@ -178,11 +201,33 @@ void Renderer::DrawScene()
 
     if(!scene.textures.empty())
     {
-        for(Texture* const tex: scene.textures)
+        int numOfTextureShaderUniforms = 0;
+        std::vector<int> textureUniformIndexes;
+        for (int i = 0; i < shaderUniforms.size(); i++)
         {
-            tex->Unbind();
+            if(shaderUniforms[i]->getType() == ShaderUniformType::TEX2D)
+            {
+                textureUniformIndexes.push_back(i);
+                numOfTextureShaderUniforms++;
+            }
+        }
+        
+
+        for (int i = 0; i < scene.textures.size() && i < numOfTextureShaderUniforms && i < 32; i++)
+        {
+            GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
+            
+            const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
+            textureUniformIndexes.erase(textureUniformIndexes.begin());
+            if(tex != nullptr)
+                tex->Unbind();
+            else
+                missingTex.Unbind();
         }
     }
     else
+    {
+        GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
         missingTex.Unbind();
+    }
 };
