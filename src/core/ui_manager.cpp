@@ -393,20 +393,24 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
     auto &texturesInScene = Scene::getInstance().textures;
     auto &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
     static const Texture &missingImgTex = *(ResourceManager::getInstance().GetTexture("ui_image_missing"));
+    static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
     static ImVec2 imgSize(128.0f, 128.0f);
+
+    Texture *returnedTex = nullptr;
 
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
     
     void *img = nullptr; 
-    if(value->getID() != 0)
+    if(value->getID() != 0 && value->getID() != missingTex.getID())
     {
         img = (void*)value->getID();
     }
     else
-    { 
         img = (void*)missingImgTex.getID();
-    }
+    
+    std::string imgButtonID = "ImgButton" + std::string(label);
+    ImGui::PushID(imgButtonID.c_str());
     if(ImGui::ImageButton(img, imgSize))
     {
         std::string path = ShowFileDialog("Select texture", {"All files", "*", "JPEG", "*.jpg", "PNG", "*.png"})[0];
@@ -419,21 +423,27 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
                 if(it == texturesInScene.end())
                     texturesInScene.push_back(newTex);
                 
-                return newTex;
+                returnedTex = newTex;
             }
         }
     }
+    ImGui::PopID();
 
     ImGui::SameLine();
     // NOTE: Just doing if(ImGui::Button) didn't work here for some reason so workaround it is
-    ImGui::Button("X");
-    if(ImGui::IsItemActivated())
+    std::string unloadImgButtonID = "UnloadTexButton" + std::string(label);
+    ImGui::PushID(unloadImgButtonID.c_str());
+    // FIXME: Upon unloading a texture, the missing texture gets goofd and doesn't get bound properly when rendering
+    if(ImGui::Button("X"))
     {
         if(value->getID() != 0 && value->getID() != missingImgTex.getID())
         {
             auto texIt = std::find(texturesInScene.begin(), texturesInScene.end(), value);
             if(texIt != texturesInScene.end())
+            {
                 *texIt = nullptr;
+                texturesInScene.erase(texIt);
+            }
 
             std::string texKey;
             for(const auto &entry: loadedTextures)
@@ -447,13 +457,14 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
             
             ResourceManager::getInstance().UnloadTexture(texKey);
 
-            return const_cast<Texture*>(ResourceManager::getInstance().GetTexture("tex_missing"));
+            returnedTex = const_cast<Texture*>(&missingTex);
         }
     }
+    ImGui::PopID();
 
     // NOTE: A combo to pick already loaded textures like it is with the shaders
 
-    return nullptr;
+    return returnedTex;
 }
 
 #pragma endregion
