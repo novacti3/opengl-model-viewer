@@ -339,25 +339,37 @@ void UIManager::DrawWidgetInt(const char* const label, int* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Int" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragInt("", value, 1);
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetUnsignedInt(const char* const label, unsigned int* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "UInt" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragInt("", (int*)value, 1, 0, UINT_MAX, "%i");
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetFloat(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Float" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragFloat("", value, 0.5f);
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetCheckbox(const char* const label, bool* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Checkbox" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::Checkbox("", value);
+    ImGui::PopID();
 }
 #pragma endregion
 
@@ -366,25 +378,37 @@ void UIManager::DrawWidgetVec2(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Vec2" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragFloat2("", value, 0.5f);
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetVec3(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Vec3" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragFloat3("", value, 0.5f);
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetVec4(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Vec4" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::DragFloat4("", value, 0.5f);
+    ImGui::PopID();
 }
 void UIManager::DrawWidgetColor(const char* const label, float* const value)
 {
     ImGui::AlignTextToFramePadding();
     ImGui::Text(label); ImGui::SameLine();
+    std::string widgetID = "Color" + std::string(label);
+    ImGui::PushID(widgetID.c_str());
     ImGui::ColorEdit4("", value);
+    ImGui::PopID();
 }
 #pragma endregion
 
