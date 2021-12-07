@@ -12,7 +12,7 @@
 
 #define ARRAY_SIZE(x) sizeof(x)/sizeof(x[0]) 
 
-static constexpr char* GLSL_VERSION = "#version 150"; 
+static constexpr char* GLSL_VERSION = "#version 420"; 
 
 void UIManager::Init(GLFWwindow* const window)
 {

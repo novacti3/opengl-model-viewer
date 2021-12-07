@@ -148,6 +148,7 @@ void Renderer::DrawScene()
     static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
     static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
 
+    // FIXME: Throws error 1282 after just unloading a texture
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
     
     GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
