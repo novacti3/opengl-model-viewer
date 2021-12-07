@@ -4,7 +4,7 @@ in vec2 UV;
 
 out vec4 o_FragColor;
 
-uniform float u_LerpStrength;
+uniform float u_LerpStrength = 0.5;
 uniform sampler2D u_TexA;
 uniform sampler2D u_TexB;
 uniform sampler2D u_Mask;

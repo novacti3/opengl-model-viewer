@@ -1,7 +1,10 @@
 #include "shader.hpp"
 
 #include "core/log.hpp"
+#include "misc/utils.hpp"
 #include "texture.hpp"
+
+#include <sstream>
 
 Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
 {
@@ -26,75 +29,41 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
     GL_CALL(glad_glDeleteShader(fragShader));
 
     // Uniform parsing
-    int numActiveUniforms;
-    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
-    int nameBufferLength;
-    GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameBufferLength));
+    // int numActiveUniforms;
+    // GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
+    // int nameBufferLength;
+    // GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameBufferLength));
 
-    for (int i = 0; i < numActiveUniforms; i++)
+
+    // NOTE: this can probably be squashed down
+    // Not created by doing char name[nameBufferLength] because MSVC can't use non-const vars to create arrays on the stack
+    // char* name = new char[nameBufferLength];
+    // int size;
+    // unsigned int type;
+    // GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
+    // std::string nameStr(name);
+    // delete name;
+
+    std::stringstream vertStream(vertSource), fragStream(fragSource);
+    
+    std::string line;
+    while(vertStream.good())
     {
-        // NOTE: this can probably be squashed down
-        // Not created by doing char name[nameBufferLength] because MSVC can't use non-const vars to create arrays on the stack
-        char* name = new char[nameBufferLength];
-        int size;
-        unsigned int type;
-        GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
-        std::string nameStr(name);
-        delete name;
+        std::getline(vertStream, line, '\n');
+        
+        auto uniform = ParseShaderUniformLine(line);
+        if(uniform.get() != nullptr)
+            _uniforms.push_back(std::move(uniform));    
+    }
+    line.clear();
 
-        void *value = nullptr;
-        std::shared_ptr<ShaderUniform> uniform;
-        switch((ShaderUniformType)type)
-        {
-            case ShaderUniformType::INT:
-            case ShaderUniformType::BOOL:
-                value = (void*)new int;
-                GL_CALL(glad_glGetUniformiv(_id, i, (int*)value));
-            break;
-            case ShaderUniformType::UINT:
-                value = (void*)new unsigned int;
-                GL_CALL(glad_glGetUniformuiv(_id, i, (unsigned int*)value));
-            break;
-            case ShaderUniformType::FLOAT:
-                value = (void*)new float;
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));
-            break;
-            
-
-            case ShaderUniformType::VEC2:
-                value = (void*)new float[2];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));      
-            break;
-            case ShaderUniformType::VEC3:
-                value = (void*)new float[3];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));     
-            break;
-            case ShaderUniformType::VEC4:
-                value = (void*)new float[4];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));   
-            break;
-            
-
-            case ShaderUniformType::MAT2:  
-                value = (void*)new float[2*2];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));
-            break;
-            case ShaderUniformType::MAT3:  
-                value = (void*)new float[3*3];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value));   
-            break;
-            case ShaderUniformType::MAT4:  
-                value = (void*)new float[4*4];
-                GL_CALL(glad_glGetUniformfv(_id, i, (float*)value)); 
-            break;
-
-
-            case ShaderUniformType::TEX2D:
-                value = (void*)new Texture;
-            break;
-        }
-        uniform = std::make_shared<ShaderUniform>(nameStr, (ShaderUniformType)type, (void*)value);
-        _uniforms.push_back(std::move(uniform));    
+    while(fragStream.good())
+    {
+        std::getline(fragStream, line, '\n');
+        
+        auto uniform = ParseShaderUniformLine(line);
+        if(uniform.get() != nullptr)
+            _uniforms.push_back(std::move(uniform));    
     }
 }
 Shader::~Shader()
@@ -130,7 +99,6 @@ void Shader::Bind() const
     GL_CALL(glad_glUseProgram(_id));
     UpdateUniforms();
 }
-
 void Shader::Unbind() const
 {
     GL_CALL(glad_glUseProgram(0));
@@ -191,4 +159,105 @@ void Shader::CheckShaderForErrors(unsigned int shader)
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
         Log::LogError("Shader error: " + std::string(infoLog));
     }
+}
+
+std::shared_ptr<ShaderUniform> Shader::ParseShaderUniformLine(const std::string &line)
+{
+    if(line.empty() || line[0] == '#')
+        return nullptr;
+
+    auto splitLine = SplitString(line, ' ');
+
+    if(splitLine[0].compare("uniform") == 0)
+    {
+        std::string name;
+        ShaderUniformType type;
+        void *value = nullptr;
+        std::shared_ptr<ShaderUniform> uniform;
+
+        name = splitLine[2];
+
+        if(splitLine[1].compare("int") == 0)
+            type = ShaderUniformType::INT;
+        else if(splitLine[1].compare("uint") == 0)
+            type = ShaderUniformType::UINT;
+        else if(splitLine[1].compare("float") == 0)
+            type = ShaderUniformType::FLOAT;
+        else if(splitLine[1].compare("bool") == 0)
+            type = ShaderUniformType::BOOL;
+        else if(splitLine[1].compare("vec2") == 0)
+            type = ShaderUniformType::VEC2;
+        else if(splitLine[1].compare("vec3") == 0)
+            type = ShaderUniformType::VEC3;
+        else if(splitLine[1].compare("vec4") == 0)
+            type = ShaderUniformType::VEC4;
+        else if(splitLine[1].compare("mat2") == 0)
+            type = ShaderUniformType::MAT2;
+        else if(splitLine[1].compare("mat3") == 0)
+            type = ShaderUniformType::MAT3;
+        else if(splitLine[1].compare("mat4") == 0)
+            type = ShaderUniformType::MAT4;
+        else if(splitLine[1].compare("sampler2D") == 0)
+            type = ShaderUniformType::TEX2D;
+
+
+        unsigned int uniformIndex = 0;
+        const char* nameCStr = name.c_str();
+        GL_CALL(glad_glGetUniformIndices(_id, 1, &nameCStr, &uniformIndex));
+
+        switch((ShaderUniformType)type)
+        {
+            case ShaderUniformType::INT:
+            case ShaderUniformType::BOOL:
+                value = (void*)new int;
+                GL_CALL(glad_glGetUniformiv(_id, uniformIndex, (int*)value));
+            break;
+            case ShaderUniformType::UINT:
+                value = (void*)new unsigned int;
+                GL_CALL(glad_glGetUniformuiv(_id, uniformIndex, (unsigned int*)value));
+            break;
+            case ShaderUniformType::FLOAT:
+                value = (void*)new float;
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));
+            break;
+            
+
+            case ShaderUniformType::VEC2:
+                value = (void*)new float[2];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));      
+            break;
+            case ShaderUniformType::VEC3:
+                value = (void*)new float[3];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));     
+            break;
+            case ShaderUniformType::VEC4:
+                value = (void*)new float[4];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));   
+            break;
+            
+
+            case ShaderUniformType::MAT2:  
+                value = (void*)new float[2*2];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));
+            break;
+            case ShaderUniformType::MAT3:  
+                value = (void*)new float[3*3];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value));   
+            break;
+            case ShaderUniformType::MAT4:  
+                value = (void*)new float[4*4];
+                GL_CALL(glad_glGetUniformfv(_id, uniformIndex, (float*)value)); 
+            break;
+
+
+            case ShaderUniformType::TEX2D:
+                value = (void*)new Texture;
+            break;
+        }
+
+        uniform = std::make_shared<ShaderUniform>(name, (ShaderUniformType)type, (void*)value);
+        return uniform;
+    }
+    else
+        return nullptr;
 }

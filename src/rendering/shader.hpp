@@ -52,4 +52,5 @@ class Shader
     private:
     void UpdateUniforms() const;
     void CheckShaderForErrors(unsigned int shader);
+    std::shared_ptr<ShaderUniform> ParseShaderUniformLine(const std::string &line);
 };
