@@ -34,6 +34,15 @@ std::string ResourceManager::ReadFile(const std::string &path)
         return "";
     }
 }
+std::pair<std::string, std::string> ResourceManager::ParseFileNameAndExtension(const std::string &path)
+{
+    std::vector<std::string> splitPath = SplitString(path, '/');
+    std::vector<std::string> fileNameWithExtension = SplitString(splitPath[splitPath.size() - 1], '.');
+    std::string fileName = fileNameWithExtension[0];
+    std::string extension = fileNameWithExtension[1];
+
+    return make_pair(fileName, extension);
+}
 
 #pragma region Shaders
 Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
@@ -100,20 +109,26 @@ void ResourceManager::UnloadShader(const std::string &name)
 Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
 {
     std::vector<std::string> splitPath = SplitString(path, '/');
-    std::string texName = SplitString(splitPath[splitPath.size() - 1], '.')[0];
-
-    if(GetTexture(texName) != nullptr)
+    
+    auto fileNameAndExtension = ParseFileNameAndExtension(path);
+    if(fileNameAndExtension.second.compare("jpg") != 0 && fileNameAndExtension.second.compare("png") != 0)
     {
-        Log::LogWarning("Stopped loading texture '" + texName + "' because it's been loaded already");
-        return const_cast<Texture*>(GetTexture(texName));
+        Log::LogError("Texture loading failed, please provide a file of an image file type (JPEG, PNG)\n Provided file: " + path);
+        return nullptr;
+    }
+
+    if(GetTexture(fileNameAndExtension.first) != nullptr)
+    {
+        Log::LogWarning("Stopped loading texture '" + fileNameAndExtension.first + "' because it's been loaded already");
+        return const_cast<Texture*>(GetTexture(fileNameAndExtension.first));
     }
 
     int width, height;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);
     Texture *tex = new Texture(GL_TEXTURE_2D, glm::vec2(width, height), GL_RGB, GL_RGB, (void*)data);
     
-    AddLoadedTexture(tex, texName);
-    Log::LogInfo("Loaded new texture '" + texName + "'");
+    AddLoadedTexture(tex, fileNameAndExtension.first);
+    Log::LogInfo("Loaded new texture '" + fileNameAndExtension.first + "'");
     return tex;
 }
 

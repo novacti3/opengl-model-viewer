@@ -182,26 +182,10 @@ void UIManager::DrawShaderPropertiesWindow()
             std::vector<std::string> shaderPaths = ShowFileDialog("Select shader", {"All files", "*", "Shader files", "*.vs *.fs"}, true);
             if(!shaderPaths.empty())
             {
-                static struct FilePathSplitter
-                {
-                    std::pair<std::string, std::string> operator()(const std::string &path)
-                    {
-                        std::vector<std::string> splitPath = SplitString(path, '/');
-                        std::vector<std::string> fileNameWithExtension = SplitString(splitPath[splitPath.size() - 1], '.');
-                        std::string fileName = fileNameWithExtension[0];
-                        std::string extension = fileNameWithExtension[1];
-
-                        return make_pair(fileName, extension);
-                    }
-                } ParseFileNameAndExtension;
-
+                using FileNameAndExtensionPair = std::pair<std::string, std::string>;
                 using ShaderSourcePair = std::pair<std::string, std::string>;
                 std::vector<ShaderSourcePair> shaderSources;
 
-                using FileNameAndExtensionPair = std::pair<std::string, std::string>;
-
-                // FIXME: Implement a check that prevents the user to load different files other than .vs and .fs
-                // because loading an image for example causes a crash and that's not very cool
                 int i = 0;
                 while(shaderPaths.size() > 0)
                 {
@@ -210,8 +194,14 @@ void UIManager::DrawShaderPropertiesWindow()
                     if(path.empty() || path.compare("") == 0)
                         continue;
                     
-                    FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
-                    
+                    FileNameAndExtensionPair fileNameAndExtension = ResourceManager::ParseFileNameAndExtension(path);
+                    if(fileNameAndExtension.second.compare("vs") != 0 && fileNameAndExtension.second.compare("fs") != 0)
+                    {
+                        Log::LogError("Shader loading failed, please provide a file of a shader file type (vs, fs)\n Provided file: " + path);
+                        shaderPaths.erase(std::find(shaderPaths.begin(), shaderPaths.end(), path));
+                        continue;
+                    }
+
                     std::string secondShaderPath = path;
                     secondShaderPath = path.substr(0, path.length() - 3);
 
@@ -259,7 +249,7 @@ void UIManager::DrawShaderPropertiesWindow()
                 {
                     if(shaderSource.first.empty() || shaderSource.second.empty())
                     {
-                        FileNameAndExtensionPair fileNameAndExtension = !shaderSource.first.empty() ? ParseFileNameAndExtension(shaderSource.first) : ParseFileNameAndExtension(shaderSource.second);
+                        FileNameAndExtensionPair fileNameAndExtension = !shaderSource.first.empty() ? ResourceManager::ParseFileNameAndExtension(shaderSource.first) : ResourceManager::ParseFileNameAndExtension(shaderSource.second);
                         Log::LogError("Cannot load shader '" + fileNameAndExtension.first + "', only " + fileNameAndExtension.second + " shader provided");
                         continue;
                     }
@@ -458,13 +448,11 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
     ImGui::PushID(imgButtonID.c_str());
     if(ImGui::ImageButton(img, imgSize))
     {
-        // FIXME: The file dialog doesn't want to close
-        // FIXME: Get the list of paths first and only set the path if it's not empty
-        // so that a segfault doesn't happen if the user cancels the file dialog
-        std::string path = ShowFileDialog("Select texture", {"All files", "*", "JPEG", "*.jpg", "PNG", "*.png"})[0];
-
-        if(!path.empty())
+        auto pathsVector = ShowFileDialog("Select texture", {"All files", "*", "Image files", "*.jpg *.png"});
+        if(!pathsVector.empty())
         {
+            std::string path = pathsVector[0];
+
             Texture *newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
             if(newTex != nullptr)
             {

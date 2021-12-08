@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <utility>
 
 using LoadedShadersMap = std::unordered_map<std::string, std::unique_ptr<Shader>>;
 using LoadedTexturesMap = std::unordered_map<std::string, std::unique_ptr<Texture>>;
@@ -34,7 +35,8 @@ class ResourceManager final : public Singleton<ResourceManager>
     inline const LoadedShadersMap &getLoadedShaders()   { return _loadedShaders;  }
     inline const LoadedTexturesMap &getLoadedTextures() { return _loadedTextures; }
 
-    std::string ReadFile(const std::string &path);
+    static std::string ReadFile(const std::string &path);
+    static std::pair<std::string, std::string> ParseFileNameAndExtension(const std::string &path);
 
     Shader *LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);
     const Shader* const GetShader(const std::string &name);
