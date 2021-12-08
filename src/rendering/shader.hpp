@@ -5,13 +5,12 @@
 #include "shader_uniform.hpp"
 
 #include <vector>
-#include <memory>
 
 class Shader
 {
     private:
     unsigned int _id = 0;
-    std::vector<std::shared_ptr<ShaderUniform>> _uniforms;
+    std::vector<ShaderUniform*> _uniforms;
 
     public:
     Shader(const char *vertSource, const char *fragSource);
@@ -28,29 +27,22 @@ class Shader
     void Unbind() const;
 
     inline const unsigned int &getID() const { return _id; }
-    inline const std::vector<ShaderUniform*> getUniforms() const 
+    inline const std::vector<ShaderUniform*> &getUniforms() const { return _uniforms; };
+    inline const std::vector<ShaderUniform*> getUniformsOfType(const ShaderUniformType &type) const 
     {
-        std::vector<ShaderUniform*> rawUniforms;
-        for(const auto &smartPtr: _uniforms)
+        std::vector<ShaderUniform*> uniformsOfSpecifiedType;; 
+        for(ShaderUniform* const uniform: _uniforms)
         {
-            rawUniforms.push_back(smartPtr.get());
+            if(uniform->getType() == type)
+                uniformsOfSpecifiedType.push_back(uniform);
         }
-        return rawUniforms;
-    };
-
-    void SetUniform(const std::string &name, const void* value)
-    {
-        for(auto uniform: _uniforms)
-        {
-            if(uniform.get()->getName() == name)
-            {
-                uniform.get()->value = const_cast<void*>(value);
-            }
-        }
+        return std::move(uniformsOfSpecifiedType);
     }
+
+    void SetUniform(const std::string &name, const void* value);
 
     private:
     void UpdateUniforms() const;
     void CheckShaderForErrors(unsigned int shader);
-    std::shared_ptr<ShaderUniform> ParseShaderUniformLine(const std::string &line);
+    ShaderUniform* const ParseShaderUniformLine(const std::string &line);
 };

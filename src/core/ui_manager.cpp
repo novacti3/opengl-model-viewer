@@ -265,18 +265,12 @@ void UIManager::DrawShaderPropertiesWindow()
         if(Scene::getInstance().shader != nullptr)
         {
             // Shader uniforms display and editing
-            const auto &shaderUniforms = Scene::getInstance().shader->getUniforms();
-            
+            static const std::vector<ShaderUniform*> &shaderUniforms = Scene::getInstance().shader->getUniforms();
             // NOTE: a vector of pairs of ShaderUniformType and vector of ShaderUniform*
             // might be a cool thing to implement into the shader so that there are is central
             // list of each uniform type and their respective place in the uniforms list on shader create
             // so that the entire list doesn't have to be looped over all the time
-            std::vector<ShaderUniform*> texUniforms;
-            for(ShaderUniform* const uniform: shaderUniforms)
-            {
-                if(uniform->getType() == ShaderUniformType::TEX2D)
-                    texUniforms.push_back(uniform);
-            }
+            static std::vector<ShaderUniform*> texUniforms = Scene::getInstance().shader->getUniformsOfType(ShaderUniformType::TEX2D);            
 
             for(ShaderUniform* const uniform: shaderUniforms)
             {
@@ -485,7 +479,6 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
     ImGui::SameLine();
     std::string unloadImgButtonID = "UnloadTexButton" + std::string(label);
     ImGui::PushID(unloadImgButtonID.c_str());
-    // FIXME: Upon unloading a texture, the missing texture gets goofd and doesn't get bound properly when rendering
     if(ImGui::Button("X"))
     {
         if(value->getID() != 0 && value->getID() != missingImgTex.getID())

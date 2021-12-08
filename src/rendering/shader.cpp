@@ -29,30 +29,14 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
     GL_CALL(glad_glDeleteShader(fragShader));
 
     // Uniform parsing
-    // int numActiveUniforms;
-    // GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORMS, &numActiveUniforms));
-    // int nameBufferLength;
-    // GL_CALL(glad_glGetProgramiv(_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameBufferLength));
-
-
-    // NOTE: this can probably be squashed down
-    // Not created by doing char name[nameBufferLength] because MSVC can't use non-const vars to create arrays on the stack
-    // char* name = new char[nameBufferLength];
-    // int size;
-    // unsigned int type;
-    // GL_CALL(glad_glGetActiveUniform(_id, i, sizeof(name), NULL, &size, &type, name));
-    // std::string nameStr(name);
-    // delete name;
-
     std::stringstream vertStream(vertSource), fragStream(fragSource);
-    
     std::string line;
     while(vertStream.good())
     {
         std::getline(vertStream, line, '\n');
         
         auto uniform = ParseShaderUniformLine(line);
-        if(uniform.get() != nullptr)
+        if(uniform != nullptr)
             _uniforms.push_back(std::move(uniform));    
     }
     line.clear();
@@ -62,7 +46,7 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
         std::getline(fragStream, line, '\n');
         
         auto uniform = ParseShaderUniformLine(line);
-        if(uniform.get() != nullptr)
+        if(uniform != nullptr)
             _uniforms.push_back(std::move(uniform));    
     }
 }
@@ -104,44 +88,54 @@ void Shader::Unbind() const
     GL_CALL(glad_glUseProgram(0));
 }
 
+void Shader::SetUniform(const std::string &name, const void* value)
+{
+    for(auto uniform: _uniforms)
+    {
+        if(uniform->getName() == name)
+        {
+            uniform->value = const_cast<void*>(value);
+        }
+    }
+}
 void Shader::UpdateUniforms() const
 {
     for(auto uniform: _uniforms)
     {
-        unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform.get()->getName().c_str()));
-        switch(uniform.get()->getType())
+        unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform->getName().c_str()));
+        switch(uniform->getType())
         {
             case ShaderUniformType::INT:
             case ShaderUniformType::BOOL:
-                GL_CALL(glad_glUniform1i(uniformLocation, *((int*)(uniform.get()->value))));
+                GL_CALL(glad_glUniform1i(uniformLocation, *((int*)(uniform->value))));
             break;
             case ShaderUniformType::UINT:
-                GL_CALL(glad_glUniform1ui(uniformLocation, *((unsigned int*)(uniform.get()->value))));
+                GL_CALL(glad_glUniform1ui(uniformLocation, *((unsigned int*)(uniform->value))));
             break;
             case ShaderUniformType::FLOAT:
-                GL_CALL(glad_glUniform1f(uniformLocation, *((float*)(uniform.get()->value))));
+                GL_CALL(glad_glUniform1f(uniformLocation, *((float*)(uniform->value))));
             break;
 
 
             case ShaderUniformType::VEC2:
-                GL_CALL(glad_glUniform2fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniform2fv(uniformLocation, 1, (float*)(uniform->value)));
             break;
             case ShaderUniformType::VEC3:
-                GL_CALL(glad_glUniform3fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniform3fv(uniformLocation, 1, (float*)(uniform->value)));
             break;
             case ShaderUniformType::VEC4:
-                GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniform4fv(uniformLocation, 1, (float*)(uniform->value)));
             break;
 
 
             case ShaderUniformType::MAT2:
-                GL_CALL(glad_glUniformMatrix2fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniformMatrix2fv(uniformLocation, 1, false, (float*)(uniform->value)));
             break;
             case ShaderUniformType::MAT3:
-                GL_CALL(glad_glUniformMatrix3fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniformMatrix3fv(uniformLocation, 1, false, (float*)(uniform->value)));
             break;
             case ShaderUniformType::MAT4:
-                GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform.get()->value)));
+                GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform->value)));
             break;
         }
     }
@@ -161,7 +155,7 @@ void Shader::CheckShaderForErrors(unsigned int shader)
     }
 }
 
-std::shared_ptr<ShaderUniform> Shader::ParseShaderUniformLine(const std::string &line)
+ShaderUniform* const Shader::ParseShaderUniformLine(const std::string &line)
 {
     if(line.empty() || line[0] == '#')
         return nullptr;
@@ -173,7 +167,7 @@ std::shared_ptr<ShaderUniform> Shader::ParseShaderUniformLine(const std::string 
         std::string name;
         ShaderUniformType type;
         void *value = nullptr;
-        std::shared_ptr<ShaderUniform> uniform;
+        ShaderUniform* uniform;
 
         name = splitLine[2];
 
@@ -255,7 +249,7 @@ std::shared_ptr<ShaderUniform> Shader::ParseShaderUniformLine(const std::string 
             break;
         }
 
-        uniform = std::make_shared<ShaderUniform>(name, (ShaderUniformType)type, (void*)value);
+        uniform = new ShaderUniform(name, (ShaderUniformType)type, (void*)value);
         return uniform;
     }
     else
