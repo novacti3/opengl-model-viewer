@@ -142,11 +142,11 @@ void Renderer::DeInit()
 
 void Renderer::DrawScene()
 {
-    static Scene &scene = Scene::getInstance();
-    auto &shaderUniforms = scene.shader->getUniforms();
-
     static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
     static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
+
+    static Scene &scene = Scene::getInstance();
+    auto &shaderUniforms = scene.shader->getUniforms();
 
     // FIXME: Throws error 1282 after just unloading a texture
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));

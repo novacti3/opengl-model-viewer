@@ -154,6 +154,9 @@ void UIManager::DrawShaderPropertiesWindow()
                 {
                     currentShader = i;
                     Scene::getInstance().shader = const_cast<Shader*>(ResourceManager::getInstance().GetShader(shaderName));
+                    // TODO: Reserve the amount of texture shader uniforms in the Scene.textures list
+                    // so that instead of pushing back elements into it and the texture bind targets fucking up,
+                    // textures get replaced at their appropriate bind index thing
                 }
             }
             ImGui::EndCombo(); 
@@ -272,7 +275,20 @@ void UIManager::DrawShaderPropertiesWindow()
         if(Scene::getInstance().shader != nullptr)
         {
             // Shader uniforms display and editing
-            for(ShaderUniform* const uniform: Scene::getInstance().shader->getUniforms())
+            const auto &shaderUniforms = Scene::getInstance().shader->getUniforms();
+            
+            // NOTE: a vector of pairs of ShaderUniformType and vector of ShaderUniform*
+            // might be a cool thing to implement into the shader so that there are is central
+            // list of each uniform type and their respective place in the uniforms list on shader create
+            // so that the entire list doesn't have to be looped over all the time
+            std::vector<ShaderUniform*> texUniforms;
+            for(ShaderUniform* const uniform: shaderUniforms)
+            {
+                if(uniform->getType() == ShaderUniformType::TEX2D)
+                    texUniforms.push_back(uniform);
+            }
+
+            for(ShaderUniform* const uniform: shaderUniforms)
             {
                 switch(uniform->getType())
                 {
@@ -319,7 +335,8 @@ void UIManager::DrawShaderPropertiesWindow()
 
 
                     case ShaderUniformType::TEX2D:
-                        Texture *newTex = DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value);
+                        unsigned int texBindTarget = std::distance(texUniforms.begin(), std::find(texUniforms.begin(), texUniforms.end(), uniform));
+                        Texture *newTex = DrawWidgetTex2D(uniform->getName().c_str(), (Texture*)uniform->value, texBindTarget);
                         if(newTex != nullptr)
                         {
                             if(((Texture*)(uniform->value))->getID() == 0)
@@ -416,7 +433,7 @@ void UIManager::DrawWidgetColor(const char* const label, float* const value)
 }
 #pragma endregion
 
-Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value)
+Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const value, unsigned int bindTarget)
 {
     auto &texturesInScene = Scene::getInstance().textures;
     auto &loadedTextures = ResourceManager::getInstance().getLoadedTextures();
@@ -441,15 +458,35 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
     ImGui::PushID(imgButtonID.c_str());
     if(ImGui::ImageButton(img, imgSize))
     {
+        // FIXME: The file dialog doesn't want to close
+        // FIXME: Get the list of paths first and only set the path if it's not empty
+        // so that a segfault doesn't happen if the user cancels the file dialog
         std::string path = ShowFileDialog("Select texture", {"All files", "*", "JPEG", "*.jpg", "PNG", "*.png"})[0];
+
         if(!path.empty())
         {
-            Texture* const newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
+            Texture *newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
             if(newTex != nullptr)
             {
                 auto it = std::find(texturesInScene.begin(), texturesInScene.end(), newTex);
                 if(it == texturesInScene.end())
-                    texturesInScene.push_back(newTex);
+                {
+                    if(texturesInScene.empty())
+                    {
+                        texturesInScene.push_back(newTex);
+                    }
+                    else
+                    {
+                        if(texturesInScene.size() - 1 > bindTarget)
+                        {
+                            auto &texAtBindTarget = texturesInScene.at(bindTarget);
+                            texAtBindTarget = newTex;
+                        }
+                        else
+                            texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
+                    }
+                    
+                }
                 
                 returnedTex = newTex;
             }
@@ -458,7 +495,6 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
     ImGui::PopID();
 
     ImGui::SameLine();
-    // NOTE: Just doing if(ImGui::Button) didn't work here for some reason so workaround it is
     std::string unloadImgButtonID = "UnloadTexButton" + std::string(label);
     ImGui::PushID(unloadImgButtonID.c_str());
     // FIXME: Upon unloading a texture, the missing texture gets goofd and doesn't get bound properly when rendering
