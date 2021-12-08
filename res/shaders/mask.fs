@@ -4,7 +4,6 @@ in vec2 UV;
 
 out vec4 o_FragColor;
 
-uniform float u_LerpStrength = 0.5;
 uniform sampler2D u_TexA;
 uniform sampler2D u_TexB;
 uniform sampler2D u_Mask;
@@ -15,8 +14,8 @@ void main()
     vec4 texB = texture(u_TexB, UV);
     vec4 mask = texture(u_Mask, UV);
 
-    vec4 texInMask = (texA - mask) + texB;
+    vec4 texInMask = texB * mask;
+    vec4 texOutOfMask = texA * (1 - mask);
 
-    float clampedLerpStrength = clamp(0, 1, u_LerpStrength);
-    o_FragColor = mix(texA, texInMask, clampedLerpStrength);
+    o_FragColor = texOutOfMask + texInMask;
 }

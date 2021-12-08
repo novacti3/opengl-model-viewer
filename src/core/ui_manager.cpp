@@ -203,6 +203,10 @@ void UIManager::DrawShaderPropertiesWindow()
                 while(shaderPaths.size() > 0)
                 {
                     std::string path = shaderPaths[i];
+                    
+                    if(path.empty() || path.compare("") == 0)
+                        continue;
+                    
                     FileNameAndExtensionPair fileNameAndExtension = ParseFileNameAndExtension(path);
                     
                     std::string secondShaderPath = path;
