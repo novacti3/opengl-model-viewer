@@ -137,6 +137,11 @@ void Shader::UpdateUniforms() const
             case ShaderUniformType::MAT4:
                 GL_CALL(glad_glUniformMatrix4fv(uniformLocation, 1, false, (float*)(uniform->value)));
             break;
+
+
+            case ShaderUniformType::TEX2D:
+                GL_CALL(glad_glUniform1i(uniformLocation, ((Texture*)(uniform->value))->getTextureImageUnit()));
+            break;
         }
     }
 }
@@ -170,6 +175,8 @@ ShaderUniform* const Shader::ParseShaderUniformLine(const std::string &line)
         ShaderUniform* uniform;
 
         name = splitLine[2];
+        if(name.at(name.size() - 1) == ';')
+            name.erase(name.end() - 1);
 
         if(splitLine[1].compare("int") == 0)
             type = ShaderUniformType::INT;

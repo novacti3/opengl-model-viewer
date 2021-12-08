@@ -463,6 +463,8 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
             Texture *newTex = ResourceManager::getInstance().LoadTextureFromFile(path);
             if(newTex != nullptr)
             {
+                newTex->setTextureImageUnit(bindTarget);
+
                 auto it = std::find(texturesInScene.begin(), texturesInScene.end(), newTex);
                 if(it == texturesInScene.end())
                 {
@@ -472,13 +474,14 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
                     }
                     else
                     {
-                        if(texturesInScene.size() - 1 > bindTarget)
-                        {
-                            auto &texAtBindTarget = texturesInScene.at(bindTarget);
-                            texAtBindTarget = newTex;
-                        }
-                        else
-                            texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
+                        // if(texturesInScene.size() - 1 > bindTarget)
+                        // {
+                        //     auto &texAtBindTarget = texturesInScene.at(bindTarget);
+                        //     texAtBindTarget = newTex;
+                        // }
+                        // else
+                        //     texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
+                        texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
                     }
                     
                 }
