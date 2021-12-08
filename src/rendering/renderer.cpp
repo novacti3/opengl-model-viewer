@@ -176,7 +176,7 @@ void Renderer::DrawScene()
             
             const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
             textureUniformIndexes.erase(textureUniformIndexes.begin());
-            if(tex != nullptr)
+            if(tex != nullptr && tex->getID() != 0)
                 tex->Bind();
             else
                 missingTex.Bind();
@@ -220,7 +220,7 @@ void Renderer::DrawScene()
             
             const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
             textureUniformIndexes.erase(textureUniformIndexes.begin());
-            if(tex != nullptr)
+            if(tex != nullptr && tex->getID() != 0)
                 tex->Unbind();
             else
                 missingTex.Unbind();

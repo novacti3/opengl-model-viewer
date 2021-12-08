@@ -125,6 +125,7 @@ void UIManager::DrawShaderPropertiesWindow()
         // NOTE: Putting all of this combo stuff into a DrawWidgetCombo func would be great
         static const LoadedShadersMap &loadedShaders = ResourceManager::getInstance().getLoadedShaders();
 
+
         static std::vector<std::string> loadedShaderNames;
         // Only update the vector if necesarry
         if(loadedShaderNames.size() != loadedShaders.size())
@@ -154,9 +155,21 @@ void UIManager::DrawShaderPropertiesWindow()
                 {
                     currentShader = i;
                     Scene::getInstance().shader = const_cast<Shader*>(ResourceManager::getInstance().GetShader(shaderName));
-                    // TODO: Reserve the amount of texture shader uniforms in the Scene.textures list
-                    // so that instead of pushing back elements into it and the texture bind targets fucking up,
-                    // textures get replaced at their appropriate bind index thing
+                    
+                    auto &texturesInScene = Scene::getInstance().textures;
+                    texturesInScene.clear();
+                    // NOTE: a vector of pairs of ShaderUniformType and vector of ShaderUniform*
+                    // might be a cool thing to implement into the shader so that there are is central
+                    // list of each uniform type and their respective place in the uniforms list on shader create
+                    // so that the entire list doesn't have to be looped over all the time
+                    std::vector<ShaderUniform*> texUniforms = Scene::getInstance().shader->getUniformsOfType(ShaderUniformType::TEX2D);  
+                    if(texturesInScene.size() != texUniforms.size())
+                    {
+                        for (int i = 0; i < texUniforms.size(); i++)
+                        {
+                            texturesInScene.push_back(new Texture());
+                        }
+                    }
                 }
             }
             ImGui::EndCombo(); 
@@ -265,12 +278,12 @@ void UIManager::DrawShaderPropertiesWindow()
         if(Scene::getInstance().shader != nullptr)
         {
             // Shader uniforms display and editing
-            static const std::vector<ShaderUniform*> &shaderUniforms = Scene::getInstance().shader->getUniforms();
+            const std::vector<ShaderUniform*> &shaderUniforms = Scene::getInstance().shader->getUniforms();          
             // NOTE: a vector of pairs of ShaderUniformType and vector of ShaderUniform*
             // might be a cool thing to implement into the shader so that there are is central
             // list of each uniform type and their respective place in the uniforms list on shader create
             // so that the entire list doesn't have to be looped over all the time
-            static std::vector<ShaderUniform*> texUniforms = Scene::getInstance().shader->getUniformsOfType(ShaderUniformType::TEX2D);            
+            std::vector<ShaderUniform*> texUniforms = Scene::getInstance().shader->getUniformsOfType(ShaderUniformType::TEX2D);  
 
             for(ShaderUniform* const uniform: shaderUniforms)
             {
