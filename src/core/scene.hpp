@@ -10,4 +10,12 @@ struct Scene: public Singleton<Scene>
 {
     Shader *shader = nullptr;
     std::vector<Texture*> textures;
+
+    private:
+    Scene() = default;
+    ~Scene()
+    {
+        shader = nullptr;
+        textures.clear();
+    }
 };
