@@ -10,16 +10,19 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
 {
     unsigned int vertShader, fragShader;
     
+    // Create and compile VERTEX shader
     vertShader = GL_CALL(glad_glCreateShader(GL_VERTEX_SHADER));
     GL_CALL(glad_glShaderSource(vertShader, 1, &vertSource, 0));
     GL_CALL(glad_glCompileShader(vertShader));
     CheckShaderForErrors(vertShader);
 
+    // Create and compile FRAGMENT shader
     fragShader = GL_CALL(glad_glCreateShader(GL_FRAGMENT_SHADER));
     GL_CALL(glad_glShaderSource(fragShader, 1, &fragSource, 0));
     GL_CALL(glad_glCompileShader(fragShader));
     CheckShaderForErrors(fragShader);
 
+    // Link PROGRAM
     _id = GL_CALL(glad_glCreateProgram());
     GL_CALL(glad_glAttachShader(_id, vertShader));
     GL_CALL(glad_glAttachShader(_id, fragShader));
@@ -31,6 +34,8 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
     // Uniform parsing
     std::stringstream vertStream(vertSource), fragStream(fragSource);
     std::string line;
+    // Go through every line of the VERTEX shader
+    // and save the shader uniform if one was declared on the given line
     while(vertStream.good())
     {
         std::getline(vertStream, line, '\n');
@@ -41,6 +46,8 @@ Shader::Shader(const char *vertSource, const char *fragSource): _id(0)
     }
     line.clear();
 
+    // Go through every line of the FRAGMENT shader
+    // and save the shader uniform if one was declared on the given line
     while(fragStream.good())
     {
         std::getline(fragStream, line, '\n');
@@ -54,27 +61,40 @@ Shader::~Shader()
 {
     GL_CALL(glad_glDeleteProgram(_id));
 }
-
-// TODO: if (other != this)...
 // Copy
 Shader::Shader(const Shader& other)
 {
-    this->_id = other._id;
+    if(&other != this)
+    {
+        this->_id = other._id;
+        this->_uniforms = other._uniforms;
+    }
 }
 Shader& Shader::operator=(Shader other)
 {
-    this->_id = other._id;
+    if(&other != this)
+    {
+        this->_id = other._id;
+        this->_uniforms = other._uniforms;
+    }
     return *this;
 }
-
 // Move
 Shader::Shader(Shader&& other)
 {
-    this->_id = std::move(other._id);
+    if(&other != this)
+    {
+        this->_id = std::move(other._id);
+        this->_uniforms = std::move(other._uniforms);
+    }
 }
 Shader& Shader::operator=(Shader&& other)
 {
-    this->_id = std::move(other._id);
+    if(&other != this)
+    {
+        this->_id = std::move(other._id);
+        this->_uniforms = std::move(other._uniforms);
+    }
     return *this;
 }
 
@@ -100,7 +120,9 @@ void Shader::SetUniform(const std::string &name, const void* value)
 }
 void Shader::UpdateUniforms() const
 {
-    for(auto uniform: _uniforms)
+    // Go through each uniform and update its value
+    // The appropriate function must be used for the appropriate type 
+    for(auto &uniform: _uniforms)
     {
         unsigned int uniformLocation = GL_CALL(glad_glGetUniformLocation(_id, uniform->getName().c_str()));
         switch(uniform->getType())
@@ -146,6 +168,8 @@ void Shader::UpdateUniforms() const
     }
 }
 
+// Reports on the potential shader compile errors
+// so that they are known and can be fixed
 void Shader::CheckShaderForErrors(unsigned int shader)
 {
     int success;
@@ -160,11 +184,21 @@ void Shader::CheckShaderForErrors(unsigned int shader)
     }
 }
 
+// Parses the specified line of shader code and checks if a uniform is declared on it
 ShaderUniform* const Shader::ParseShaderUniformLine(const std::string &line)
 {
     if(line.empty() || line[0] == '#')
         return nullptr;
 
+    /* 
+    Separate the line into tokens
+    Format: (layout) uniform type name = default_value
+    
+    NOTE: It'd be a good idea to add support for layout so that
+    texture binding points can be specified in the shader
+    and so that the uniform doesn't get ignored because the first token
+    on the line is something other than "uniform"
+    */
     auto splitLine = SplitString(line, ' ');
 
     if(splitLine[0].compare("uniform") == 0)
@@ -175,9 +209,14 @@ ShaderUniform* const Shader::ParseShaderUniformLine(const std::string &line)
         ShaderUniform* uniform;
 
         name = splitLine[2];
+        // It's important to delete the ; because otherwise,
+        // glUniformLocation would return the wrong value.
+        // OpenGL doesn't store the uniform names with a ; internally
         if(name.at(name.size() - 1) == ';')
             name.erase(name.end() - 1);
 
+        // Set the uniform type appropriately
+        // Sadly, C++ switch statements don't support strings so if-elseif chain it is
         if(splitLine[1].compare("int") == 0)
             type = ShaderUniformType::INT;
         else if(splitLine[1].compare("uint") == 0)
@@ -203,9 +242,13 @@ ShaderUniform* const Shader::ParseShaderUniformLine(const std::string &line)
 
 
         unsigned int uniformIndex = 0;
+        // The C-string version of the name must be saved
+        // in a variable before using it because of some C++ shenanigans
+        // (otherwise the name doesn't get passed along at all or is messed up)
         const char* nameCStr = name.c_str();
         GL_CALL(glad_glGetUniformIndices(_id, 1, &nameCStr, &uniformIndex));
 
+        // Create the value ptr and set it to a value of the appropriate type
         switch((ShaderUniformType)type)
         {
             case ShaderUniformType::INT:
