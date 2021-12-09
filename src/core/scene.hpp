@@ -6,8 +6,10 @@
 
 #include <vector>
 
-struct Scene: public Singleton<Scene>
+struct Scene final: public Singleton<Scene>
 {
+    friend class Singleton<Scene>;
+
     Shader *shader = nullptr;
     std::vector<Texture*> textures;
 
