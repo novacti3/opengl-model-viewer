@@ -27,7 +27,7 @@ enum class ShaderUniformType
     TEX3D = GL_SAMPLER_3D
 };
 
-struct ShaderUniform
+struct ShaderUniform final
 {
     private:
     std::string _name = "";
@@ -50,5 +50,8 @@ struct ShaderUniform
     inline const ShaderUniformType &getType() const { return _type; }
 
     private:
+    // Util func: Handles casting the pointer to the appropriate type before copying
+    void CopyValuePtr(void* const src);
+    // Util func: Handles casting the pointer to the appropriate type before deleting 
     void DeleteValuePtr();
 };
