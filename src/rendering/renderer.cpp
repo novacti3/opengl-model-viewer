@@ -65,7 +65,6 @@ void Renderer::Init()
 
     Scene::getInstance().model = _cube;
 }
-
 void Renderer::DeInit()
 {
     delete _cube;
@@ -76,9 +75,9 @@ void Renderer::DrawScene()
 {
     static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
     static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
-
+    
     static Scene &scene = Scene::getInstance();
-    auto &shaderUniforms = scene.shader->getUniforms();
+    auto &textureUniforms = scene.shader->getUniformsOfType(ShaderUniformType::TEX2D);
 
     // FIXME: Throws error 1282 after just unloading a texture
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
@@ -88,26 +87,14 @@ void Renderer::DrawScene()
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
+
     if(!scene.textures.empty())
     {
-        int numOfTextureShaderUniforms = 0;
-        std::vector<int> textureUniformIndexes;
-        for (int i = 0; i < shaderUniforms.size(); i++)
-        {
-            if(shaderUniforms[i]->getType() == ShaderUniformType::TEX2D)
-            {
-                textureUniformIndexes.push_back(i);
-                numOfTextureShaderUniforms++;
-            }
-        }
-        
-
-        for (int i = 0; i < scene.textures.size() && i < numOfTextureShaderUniforms && i < 32; i++)
+        for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
         {
             GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
             
-            const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
-            textureUniformIndexes.erase(textureUniformIndexes.begin());
+            const Texture* const tex = (Texture*)(textureUniforms[i])->value;
             if(tex != nullptr && tex->getID() != 0)
                 tex->Bind();
             else
@@ -134,25 +121,12 @@ void Renderer::DrawScene()
     scene.model->Unbind();
 
     if(!scene.textures.empty())
-    {
-        int numOfTextureShaderUniforms = 0;
-        std::vector<int> textureUniformIndexes;
-        for (int i = 0; i < shaderUniforms.size(); i++)
-        {
-            if(shaderUniforms[i]->getType() == ShaderUniformType::TEX2D)
-            {
-                textureUniformIndexes.push_back(i);
-                numOfTextureShaderUniforms++;
-            }
-        }
-        
-
-        for (int i = 0; i < scene.textures.size() && i < numOfTextureShaderUniforms && i < 32; i++)
+    {    
+        for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
         {
             GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
             
-            const Texture* const tex = (Texture*)(shaderUniforms[textureUniformIndexes.front()]->value);
-            textureUniformIndexes.erase(textureUniformIndexes.begin());
+            const Texture* const tex = (Texture*)(textureUniforms[i])->value;
             if(tex != nullptr && tex->getID() != 0)
                 tex->Unbind();
             else
