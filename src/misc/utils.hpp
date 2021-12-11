@@ -5,6 +5,7 @@
 #include <sstream>
 
 // Code from https://www.fluentcpp.com/2017/04/21/how-to-split-a-string-in-c/
+// Splits the string into parts according to the delim character
 inline std::vector<std::string> SplitString(const std::string &string, const char &delim)
 {
    std::vector<std::string> tokens;
@@ -20,6 +21,10 @@ inline std::vector<std::string> SplitString(const std::string &string, const cha
 }
 
 // Code from https://www.geeksforgeeks.org/how-to-find-index-of-a-given-element-in-a-vector-in-cpp/
+/* 
+Returns the index of the desired element if its present in the given collection.
+Returns -1 if the element is NOT present
+ */
 template<typename T>
 inline int FindIndexOfElement(const std::vector<T> &vector, const T &value)
 {
@@ -33,3 +38,4 @@ inline int FindIndexOfElement(const std::vector<T> &vector, const T &value)
    
    return index;   
 }
+// NOTE: Having the same func for maps and arrays would be handy 

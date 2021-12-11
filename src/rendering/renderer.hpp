@@ -8,6 +8,7 @@
 #include "../core/scene.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
+#include "model.hpp"
 
 enum class RenderMode
 {
@@ -27,7 +28,8 @@ class Renderer : public Singleton<Renderer>
     RendererSettings settings;
 
     private:
-    unsigned int VAO, VBO, EBO;
+    Model *_cube;
+    Model *_quad;
 
     public:
     void Init();

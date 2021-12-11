@@ -2,7 +2,7 @@
 
 #include <glm/vec2.hpp>
 
-class Texture
+class Texture final
 {
     public:
     void *data;
