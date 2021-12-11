@@ -4,10 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
-#include "../misc/singleton.hpp"
-#include "../rendering/renderer.hpp"
-#include "../rendering/shader.hpp"
-#include "../rendering/texture.hpp"
+#include "misc/singleton.hpp"
+#include "rendering/renderer.hpp"
+#include "rendering/shader.hpp"
+#include "rendering/texture.hpp"
 
 class UIManager : public Singleton<UIManager>
 {

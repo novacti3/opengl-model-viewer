@@ -5,6 +5,7 @@
 
 void Renderer::Init()
 {
+    // Init cube model
     std::vector<Vertex> cubeVertices;
     cubeVertices.insert(cubeVertices.end(), 
     {
@@ -51,6 +52,7 @@ void Renderer::Init()
         Vertex(glm::vec3(-0.5f,  0.5f, -0.5f),  glm::vec2(0.0f, 1.0f))
     });
 
+    // Init quad model
     std::vector<Vertex> quadVertices;
     quadVertices.insert(quadVertices.end(),
     {
@@ -94,6 +96,8 @@ void Renderer::DrawScene()
     scene.shader->Bind();
 
     auto &textureUniforms = scene.shader->getUniformsOfType(ShaderUniformType::TEX2D);
+    // If there are textures present in the scene, go through them and bind the appropriate texture to the appropriate bind target
+    // Else just bind the missing texture
     if(!scene.textures.empty())
     {
         for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
@@ -122,6 +126,7 @@ void Renderer::DrawScene()
     GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, numOfVerts));
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     
+    // Unbind the textures in order if present, else just unbind the missing tex
     if(!scene.textures.empty())
     {    
         for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)

@@ -3,9 +3,8 @@
 #include <glad/glad.h>
 #include <glm/vec4.hpp>
 
-#include "../misc/singleton.hpp"
-
-#include "../core/scene.hpp"
+#include "misc/singleton.hpp"
+#include "core/scene.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 #include "model.hpp"
