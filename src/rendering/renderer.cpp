@@ -77,7 +77,6 @@ void Renderer::DrawScene()
     static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
     
     static Scene &scene = Scene::getInstance();
-    auto &textureUniforms = scene.shader->getUniformsOfType(ShaderUniformType::TEX2D);
 
     // FIXME: Throws error 1282 after just unloading a texture
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
@@ -87,7 +86,14 @@ void Renderer::DrawScene()
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
+        
+    scene.model->Bind();
+    
+    if(scene.shader == nullptr)
+        scene.shader = const_cast<Shader*>(&defaultShader);
+    scene.shader->Bind();
 
+    auto &textureUniforms = scene.shader->getUniformsOfType(ShaderUniformType::TEX2D);
     if(!scene.textures.empty())
     {
         for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
@@ -111,20 +117,11 @@ void Renderer::DrawScene()
         GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
         missingTex.Bind();
     }
-        
-    scene.model->Bind();
-    
-    if(scene.shader == nullptr)
-        scene.shader = const_cast<Shader*>(&defaultShader);
-    scene.shader->Bind();
     
     int numOfVerts = scene.model->getVertices().size();
     GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, numOfVerts));
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     
-    scene.shader->Unbind();
-    scene.model->Unbind();
-
     if(!scene.textures.empty())
     {    
         for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
@@ -143,4 +140,7 @@ void Renderer::DrawScene()
         GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
         missingTex.Unbind();
     }
+
+    scene.shader->Unbind();
+    scene.model->Unbind();
 };

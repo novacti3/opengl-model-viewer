@@ -24,6 +24,7 @@ class UIManager : public Singleton<UIManager>
     void Init(GLFWwindow* const window);
     void DeInit();
     
+    // Draws all of the UI to the screen
     void DrawUI();
 
 
