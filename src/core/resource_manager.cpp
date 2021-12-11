@@ -1,134 +1,172 @@
 #include "resource_manager.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #include "log.hpp"
 #include "misc/utils.hpp"
 
 #include <fstream>
 #include <sstream>
 
-#pragma region Shaders
-Shader *ResourceManager::CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
+std::string ResourceManager::ReadFile(const std::string &path)
 {
-    // NOTE: Might want to wrap this in a try-catch block
-    std::ifstream vertShaderFile(vertShaderPath), fragShaderFile(fragShaderPath);
-    std::stringstream vertShaderSourceStream, fragShaderSourceStream;
-    std::string vertShaderSource, fragShaderSource;
-    
-    // Read the vertex shader file at the provided file path and store its contents
-    if(!vertShaderFile.is_open())
+    try
     {
-        Log::LogError("Couldn't open file " + vertShaderPath);
-        return nullptr;
+        std::ifstream fileStream(path);
+        if(!fileStream.is_open())
+        {
+            Log::LogError("Couldn't read file, path: " + path);
+            return "";
+        }
+
+        std::stringstream stringStream;
+        stringStream << fileStream.rdbuf();
+        fileStream.close();
+
+        std::string contents = stringStream.str();
+        return contents;
     }
-    
-    vertShaderSourceStream << vertShaderFile.rdbuf();
-    vertShaderFile.close();
-    
-    // Read the fragment shader file at the provided file path and store its contents
-    if(!fragShaderFile.is_open())
+    catch(const std::exception& e)
     {
-        Log::LogError("Couldn't open file " + fragShaderPath);
-        return nullptr;
+        // NOTE: This might be redundant because of the is_open check in the try block
+        Log::LogError(e.what());
+        return "";
+    }
+}
+std::pair<std::string, std::string> ResourceManager::ParseFileNameAndExtension(const std::string &path)
+{
+    std::vector<std::string> splitPath = SplitString(path, '/');
+    std::vector<std::string> fileNameWithExtension = SplitString(splitPath[splitPath.size() - 1], '.');
+    std::string fileName = fileNameWithExtension[0];
+    std::string extension = fileNameWithExtension[1];
+
+    return make_pair(fileName, extension);
+}
+
+#pragma region Shaders
+Shader* ResourceManager::LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath)
+{
+    // Get rid of the file extension and get the name of the shader
+    std::vector<std::string> splitVertPath = SplitString(vertShaderPath, '/');
+    std::string shaderName = SplitString(splitVertPath[splitVertPath.size() - 1], '.')[0];
+
+    if(GetShader(shaderName) != nullptr)
+    {
+        Log::LogWarning("Stopped loading shader '" + shaderName + "' because it's been loaded already");
+        return const_cast<Shader*>(GetShader(shaderName));
     }
 
-    fragShaderSourceStream << fragShaderFile.rdbuf();
-    fragShaderFile.close();
-    
-    vertShaderSource = vertShaderSourceStream.str();
-    fragShaderSource = fragShaderSourceStream.str();
-    
-    // Create a new shader from the extracted sources
+    std::string vertShaderSource = ReadFile(vertShaderPath);
+    std::string fragShaderSource = ReadFile(fragShaderPath);
+
     Shader *shader = new Shader(vertShaderSource.c_str(), fragShaderSource.c_str());
+    AddLoadedShader(shader, shaderName);
+    Log::LogInfo("Loaded new shader, name: '" + shaderName + "'");
     return shader;
 }
 
-const std::unique_ptr<Shader>* const ResourceManager::GetShader(const std::string &name)
+const Shader* const ResourceManager::GetShader(const std::string &name)
 {
     for(const auto &shader: _loadedShaders)
     {
         if(shader.first.compare(name) == 0)
         {
-            return &_loadedShaders[shader.first];
+            return _loadedShaders[shader.first].get();
         }
     }
-    Log::LogError("Couldn't find shader " + name + " among loaded shaders");
+    Log::LogWarning("Couldn't find shader '" + name + "' among loaded shaders");
     return nullptr;
 }
 
-void ResourceManager::AddShader(Shader *shader, std::string name)
+void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 {
-    std::unique_ptr<Shader> smartPtr(shader);
-    _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+    if(shader != nullptr)
+    {
+        std::unique_ptr<Shader> smartPtr(shader);
+        _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+    }
+}
+void ResourceManager::UnloadShader(const std::string &name)
+{
+    for(const auto &shader: _loadedShaders)
+    {
+        if(shader.first.compare(name) == 0)
+        {
+            shader.second.get()->Unbind();
+            // delete shader.second.get();
+            _loadedShaders.erase(shader.first);
+            Log::LogInfo("Unloaded shader '" + name + "'");
+            return;
+        }
+    }
+
+    Log::LogInfo("Failed unloading shader '" + name +"', shader not among loaded shaders");
 }
 #pragma endregion
 
-#pragma region Models
-Model *ResourceManager::CreateModelFromOBJFile(const std::string &path)
+#pragma region Textures
+Texture* ResourceManager::LoadTextureFromFile(const std::string &path)
 {
-    std::ifstream objFile(path);
-    std::stringstream dataStream;
-
-    if(!objFile.is_open())
+    std::vector<std::string> splitPath = SplitString(path, '/');
+    
+    auto fileNameAndExtension = ParseFileNameAndExtension(path);
+    if(fileNameAndExtension.second.compare("jpg") != 0 && fileNameAndExtension.second.compare("png") != 0)
     {
-        Log::LogError("Couldn't open file " + path);
+        Log::LogError("Texture loading failed, please provide a file of an image file type (JPEG, PNG)\n Provided file: " + path);
         return nullptr;
     }
 
-    dataStream << objFile.rdbuf();
-    objFile.close();
-
-    std::string line = "";
-    std::vector<std::string> tokens;
-    std::vector<glm::vec3> vertices;
-    while(getline(dataStream, line))
+    if(GetTexture(fileNameAndExtension.first) != nullptr)
     {
-        // Ignore comments
-        if(line[0] != '#')
-        {
-            tokens = SplitString(line, ' ');
-
-            // Switch would make sense here but it can't be used with strings
-            if(tokens[0] == "v")
-            {
-                float x = std::stof(tokens[1]);
-                float y = std::stof(tokens[2]);
-                float z = std::stof(tokens[3]);
-                glm::vec3 vertex(x, y, z);
-                vertices.push_back(std::move(vertex));
-            }
-            else if(tokens[0] == "vt")
-            {
-                // WIP
-            }
-            else if(tokens[0] == "f")
-            {
-                // WIP
-            }
-
-            tokens.clear();
-        }
+        Log::LogWarning("Stopped loading texture '" + fileNameAndExtension.first + "' because it's been loaded already");
+        return const_cast<Texture*>(GetTexture(fileNameAndExtension.first));
     }
 
-    Model* model = new Model(std::move(vertices));
-    return model;
+    int width, height;
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, nullptr, 0);
+    Texture *tex = new Texture(GL_TEXTURE_2D, glm::vec2(width, height), GL_RGB, GL_RGB, (void*)data);
+    
+    AddLoadedTexture(tex, fileNameAndExtension.first);
+    Log::LogInfo("Loaded new texture '" + fileNameAndExtension.first + "'");
+    return tex;
 }
 
-const std::unique_ptr<Model>* const ResourceManager::GetModel(const std::string &name)
+const Texture* const ResourceManager::GetTexture(const std::string &name)
 {
-    for(const auto &model: _loadedModels)
+    for(const auto &tex: _loadedTextures)
     {
-        if(model.first.compare(name) == 0)
+        if(tex.first.compare(name) == 0)
         {
-            return &_loadedModels[model.first];
+            return _loadedTextures[tex.first].get();
         }
     }
-    Log::LogError("Couldn't find model " + name + " among loaded models");
+    Log::LogWarning("Couldn't find texture '" + name + "' among loaded textures");
     return nullptr;
 }
 
-void ResourceManager::AddModel(Model *model, std::string name)
+void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
 {
-    std::unique_ptr<Model> smartPtr(model);
-    _loadedModels.insert(std::make_pair(name, std::move(smartPtr)));
+    if(texture != nullptr)
+    {
+        std::unique_ptr<Texture> smartPtr(texture);
+        _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
+    }
+}
+
+void ResourceManager::UnloadTexture(const std::string &name)
+{
+    for(const auto &tex: _loadedTextures)
+    {
+        if(tex.first.compare(name) == 0)
+        {
+            // delete tex.second.get();
+            _loadedTextures.erase(name);
+            Log::LogInfo("Unloaded texture '" + name + "'");
+            return;
+        }
+    }
+
+    Log::LogInfo("Failed unloading texture '" + name +"', texture not among loaded textures");
 }
 #pragma endregion

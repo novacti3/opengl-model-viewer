@@ -2,19 +2,23 @@
 
 #include "misc/singleton.hpp"
 #include "rendering/shader.hpp"
-#include "rendering/model.hpp"
+#include "rendering/texture.hpp"
 
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <utility>
+
+using LoadedShadersMap = std::unordered_map<std::string, std::unique_ptr<Shader>>;
+using LoadedTexturesMap = std::unordered_map<std::string, std::unique_ptr<Texture>>;
 
 class ResourceManager final : public Singleton<ResourceManager>
 {
     friend class Singleton<ResourceManager>;
 
     private:
-    std::unordered_map<std::string, std::unique_ptr<Shader>> _loadedShaders;
-    std::unordered_map<std::string, std::unique_ptr<Model>> _loadedModels;
+    LoadedShadersMap _loadedShaders;
+    LoadedTexturesMap _loadedTextures;
 
     private:
     ResourceManager() = default;
@@ -27,11 +31,20 @@ class ResourceManager final : public Singleton<ResourceManager>
     ResourceManager(ResourceManager&& other) = delete;
     ResourceManager& operator=(ResourceManager&& other) = delete;
 
-    Shader *CreateShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);
-    const std::unique_ptr<Shader>* const GetShader(const std::string &name);
-    void AddShader(Shader *shader, std::string name);
 
-    Model *CreateModelFromOBJFile(const std::string &path);
-    const std::unique_ptr<Model>* const GetModel(const std::string &name);
-    void AddModel(Model *model, std::string name);
+    inline const LoadedShadersMap &getLoadedShaders()   { return _loadedShaders;  }
+    inline const LoadedTexturesMap &getLoadedTextures() { return _loadedTextures; }
+
+    static std::string ReadFile(const std::string &path);
+    static std::pair<std::string, std::string> ParseFileNameAndExtension(const std::string &path);
+
+    Shader *LoadShaderFromFiles(const std::string &vertShaderPath, const std::string &fragShaderPath);
+    const Shader* const GetShader(const std::string &name);
+    void AddLoadedShader(Shader *shader, std::string name);
+    void UnloadShader(const std::string &name);
+
+    Texture *LoadTextureFromFile(const std::string &path);
+    const Texture* const GetTexture(const std::string &name);
+    void AddLoadedTexture(Texture *texture, std::string name);
+    void UnloadTexture(const std::string &name);
 };

@@ -10,3 +10,9 @@
 [submodule "libs/imgui"]
 	path = libs/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "libs/stb"]
+	path = libs/stb
+	url = https://github.com/nothings/stb
+[submodule "libs/pfd"]
+	path = libs/pfd
+	url = https://github.com/samhocevar/portable-file-dialogs

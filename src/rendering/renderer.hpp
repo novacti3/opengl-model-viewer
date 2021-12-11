@@ -3,11 +3,11 @@
 #include <glad/glad.h>
 #include <glm/vec4.hpp>
 
-#include "../misc/singleton.hpp"
-
+#include "misc/singleton.hpp"
+#include "core/scene.hpp"
 #include "shader.hpp"
+#include "texture.hpp"
 #include "model.hpp"
-
 
 enum class RenderMode
 {
@@ -27,11 +27,11 @@ class Renderer : public Singleton<Renderer>
     RendererSettings settings;
 
     private:
-    unsigned int VAO, VBO, EBO;
+    Model *_cube;
+    Model *_quad;
 
     public:
     void Init();
     void DeInit();
-    void DrawModel(Model* const model, Shader* const shader);
-    void DrawScene(Shader* const shader);
+    void DrawScene();
 };

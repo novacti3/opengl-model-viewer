@@ -1,111 +1,86 @@
 #include "renderer.hpp"
 
-#include "../core/log.hpp"
+#include "core/log.hpp"
+#include "core/resource_manager.hpp"
 
 void Renderer::Init()
 {
-    // float vertices[] =
-    // {
-    //     -0.5f, 0.5f, // top left
-    //     -0.5f, -0.5f, // bot left
-    //     0.5f, -0.5f, // bot right
-    //     0.5f, 0.5f // top right
-    // };
+    // Init cube model
+    std::vector<Vertex> cubeVertices;
+    cubeVertices.insert(cubeVertices.end(), 
+    {
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f, -0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 0.0f)),
 
-    // unsigned int indices[] =
-    // {
-    //     0, 1, 2,
-    //     2, 3, 0
-    // };
+        Vertex(glm::vec3(-0.5f, -0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
 
+        Vertex(glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
 
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
 
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f, -0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
 
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
+        Vertex(glm::vec3(-0.5f,  0.5f, -0.5f),  glm::vec2(0.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f, -0.5f),  glm::vec2(1.0f, 1.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5f,  0.5f,  0.5f),  glm::vec2(1.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f,  0.5f),  glm::vec2(0.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5f,  0.5f, -0.5f),  glm::vec2(0.0f, 1.0f))
+    });
 
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
+    // Init quad model
+    std::vector<Vertex> quadVertices;
+    quadVertices.insert(quadVertices.end(),
+    {
+        Vertex(glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 1.0f)), // top left
+        Vertex(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f)), // bot left
+        Vertex(glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(1.0f, 0.0f)), // bot right
+        Vertex(glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(1.0f, 1.0f)), // top right
+    });
 
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
+    _cube = new Model(std::move(cubeVertices));
+    _quad = new Model(std::move(quadVertices));
 
-        -0.5f,  0.5f, -0.5f, 
-        0.5f,  0.5f, -0.5f, 
-        0.5f,  0.5f,  0.5f, 
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-    };
-
-    GL_CALL(glad_glGenVertexArrays(1, &VAO));
-    GL_CALL(glad_glGenBuffers(1, &VBO));
-    GL_CALL(glad_glGenBuffers(1, &EBO));
-
-    GL_CALL(glad_glBindVertexArray(VAO));
-
-    GL_CALL(glad_glBindBuffer(GL_ARRAY_BUFFER, VBO));
-    GL_CALL(glad_glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-
-    // GL_CALL(glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-    // GL_CALL(glad_glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
-
-    GL_CALL(glad_glVertexAttribPointer(0, 3, GL_FLOAT, false, 3*sizeof(float), nullptr));
-    GL_CALL(glad_glEnableVertexAttribArray(0));
-
-    GL_CALL(glad_glBindVertexArray(0));
-    GL_CALL(glad_glBindBuffer(GL_ARRAY_BUFFER, 0));
+    Scene::getInstance().model = _cube;
 }
-
 void Renderer::DeInit()
 {
-    GL_CALL(glad_glDeleteBuffers(1, &VBO));
-    GL_CALL(glad_glDeleteBuffers(1, &EBO));
-    GL_CALL(glad_glDeleteVertexArrays(1, &VAO));
+    delete _cube;
+    delete _quad;
 }
 
-void Renderer::DrawModel(Model* const model, Shader* const shader)
+void Renderer::DrawScene()
 {
-    GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT));
-    GL_CALL(glad_glClearColor(settings.bgColor.x, settings.bgColor.y, settings.bgColor.z, 1.0f));
+    static const Shader &defaultShader = *(ResourceManager::getInstance().GetShader("default"));
+    static const Texture &missingTex = *(ResourceManager::getInstance().GetTexture("tex_missing"));
+    
+    static Scene &scene = Scene::getInstance();
 
-    GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
-
-    GL_CALL(glad_glBindVertexArray(model->getVAO()));
-    shader->Bind();
-    GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, model->getVertices().size()));
-    shader->Unbind();
-    GL_CALL(glad_glBindVertexArray(0));
-}
-
-
-void Renderer::DrawScene(Shader* const shader)
-{
+    // FIXME: Throws error 1282 after just unloading a texture
     GL_CALL(glad_glEnable(GL_DEPTH_TEST));
     
     GL_CALL(glad_glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -113,10 +88,64 @@ void Renderer::DrawScene(Shader* const shader)
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
-    GL_CALL(glad_glBindVertexArray(VAO));
-    shader->Bind();
-    GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, 36));
+        
+    scene.model->Bind();
+    
+    if(scene.shader == nullptr)
+        scene.shader = const_cast<Shader*>(&defaultShader);
+    scene.shader->Bind();
+
+    auto &textureUniforms = scene.shader->getUniformsOfType(ShaderUniformType::TEX2D);
+    // If there are textures present in the scene, go through them and bind the appropriate texture to the appropriate bind target
+    // Else just bind the missing texture
+    if(!scene.textures.empty())
+    {
+        for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
+        {
+            GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
+            
+            const Texture* const tex = (Texture*)(textureUniforms[i])->value;
+            if(tex != nullptr && tex->getID() != 0)
+                tex->Bind();
+            else
+                missingTex.Bind();
+            // NOTE: As it stands right now, the missing texture's image unit index doesn't change from 0
+            // That's bad for shaders with multiple textures because only GL_TEXTURE0 shows up as missing texture
+            // (eg. the inside or outside of the mask should be missing tex if not specified)
+            // The missing tex must probably be set to empty uniform and have its image unit changed per shader per uniform
+            // so that it gets updated properly or something. Maybe shared_ptr the texture itself?
+        }
+    }
+    else
+    {
+        GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
+        missingTex.Bind();
+    }
+    
+    int numOfVerts = scene.model->getVertices().size();
+    GL_CALL(glad_glDrawArrays(GL_TRIANGLES, 0, numOfVerts));
     // GL_CALL(glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-    shader->Unbind();
-    GL_CALL(glad_glBindVertexArray(0));
+    
+    // Unbind the textures in order if present, else just unbind the missing tex
+    if(!scene.textures.empty())
+    {    
+        for (int i = 0; i < scene.textures.size() && i < textureUniforms.size() && i < 32; i++)
+        {
+            GL_CALL(glad_glActiveTexture(GL_TEXTURE0 + i));
+            
+            const Texture* const tex = (Texture*)(textureUniforms[i])->value;
+            if(tex != nullptr && tex->getID() != 0)
+                tex->Unbind();
+            else
+                missingTex.Unbind();
+        }
+    }
+    else
+    {
+        GL_CALL(glad_glActiveTexture(GL_TEXTURE0));
+        missingTex.Unbind();
+    }
+
+    scene.shader->Unbind();
+    scene.model->Unbind();
 };

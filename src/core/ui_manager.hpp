@@ -4,9 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
-#include "../misc/singleton.hpp"
-#include "../rendering/renderer.hpp"
-#include "../rendering/shader.hpp"
+#include "misc/singleton.hpp"
+#include "rendering/renderer.hpp"
+#include "rendering/shader.hpp"
+#include "rendering/texture.hpp"
 
 class UIManager : public Singleton<UIManager>
 {
@@ -23,19 +24,26 @@ class UIManager : public Singleton<UIManager>
     void Init(GLFWwindow* const window);
     void DeInit();
     
-    void DrawUI(RendererSettings &rendererSettings, Shader* const shaderInUse);
+    // Draws all of the UI to the screen
+    void DrawUI();
 
 
     private:
-    void DrawMainMenuBar();
-    void DrawRendererPropertiesWindow(RendererSettings &rendererSettings);
-    void DrawShaderPropertiesWindow(Shader* const shader);
+    std::vector<std::string> ShowFileDialog(const std::string &title, const std::vector<std::string> &filters = {"All files", "*"}, bool allowMultiSelect = false);
 
+    void DrawMainMenuBar();
+    void DrawRendererPropertiesWindow();
+    void DrawShaderPropertiesWindow();
+
+    void DrawWidgetInt(const char* const label, int* const value);
+    void DrawWidgetUnsignedInt(const char* const label, unsigned int* const value);
     void DrawWidgetFloat(const char* const label, float* const value);
     void DrawWidgetCheckbox(const char* const label, bool* const value);
 
+    void DrawWidgetVec2(const char* const label, float* const value);
     void DrawWidgetVec3(const char* const label, float* const value);
     void DrawWidgetVec4(const char* const label, float* const value);
-
     void DrawWidgetColor(const char* const label, float* const value);
+
+    Texture* DrawWidgetTex2D(const char* const label, Texture* const value, unsigned int bindTarget = 0);
 };
