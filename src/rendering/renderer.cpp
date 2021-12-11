@@ -180,6 +180,11 @@ void Renderer::DrawScene()
                 tex->Bind();
             else
                 missingTex.Bind();
+            // NOTE: As it stands right now, the missing texture's image unit index doesn't change from 0
+            // That's bad for shaders with multiple textures because only GL_TEXTURE0 shows up as missing texture
+            // (eg. the inside or outside of the mask should be missing tex if not specified)
+            // The missing tex must probably be set to empty uniform and have its image unit changed per shader per uniform
+            // so that it gets updated properly or something. Maybe shared_ptr the texture itself?
         }
     }
     else

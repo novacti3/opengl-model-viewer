@@ -474,13 +474,6 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
                     }
                     else
                     {
-                        // if(texturesInScene.size() - 1 > bindTarget)
-                        // {
-                        //     auto &texAtBindTarget = texturesInScene.at(bindTarget);
-                        //     texAtBindTarget = newTex;
-                        // }
-                        // else
-                        //     texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
                         texturesInScene.insert(texturesInScene.begin() + bindTarget, newTex);
                     }
                     
