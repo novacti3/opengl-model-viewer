@@ -30,6 +30,7 @@ list(APPEND INCLUDES
     libs/glm/
     libs/freetype/include
     libs/imgui/
+    libs/tinyobjloader/
 
     # project includes
     src/
