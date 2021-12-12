@@ -9,7 +9,7 @@ const float AMBIENT_LIGHT_STRENGTH = 0.1;
 const float SPECULAR_STRENGTH = 0.5;
 
 uniform vec3 u_ViewPos = vec3(0.0);
-uniform vec4 u_Color = vec4(1.0, 0.5, 0.31, 1.0);
+uniform vec4 u_Color = vec4(1.0);
 uniform vec3 u_LightPos = vec3(1.2, 1.0, 2.0);
 uniform vec4 u_LightColor = vec4(1.0);
 

@@ -120,12 +120,6 @@ void UIManager::DrawMainMenuBar()
                 scene.model = nullptr;
             }
         }
-        ImGui::Separator();
-        if(ImGui::MenuItem("Exit"))
-        {
-            // Quit program
-            // TODO: Notify the app to end
-        }
 
         ImGui::EndMenu();
     }
