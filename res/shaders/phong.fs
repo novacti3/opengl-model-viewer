@@ -6,7 +6,9 @@ in vec3 o_FragPos;
 in vec3 o_Normal;
 
 const float AMBIENT_LIGHT_STRENGTH = 0.1;
+const float SPECULAR_STRENGTH = 0.5;
 
+uniform vec3 u_ViewPos = vec3(0.0);
 uniform vec4 u_Color = vec4(1.0, 0.5, 0.31, 1.0);
 uniform vec3 u_LightPos = vec3(1.2, 1.0, 2.0);
 uniform vec4 u_LightColor = vec4(1.0);
@@ -23,5 +25,13 @@ void main()
     float diffuseImpact = max(dot(normal, lightDir), 0.0);
     vec4 diffuseLight = u_LightColor * diffuseImpact;
 
-    o_FragColor = u_Color * (ambientLight + diffuseLight);
+    // Calculate specular light
+    vec3 viewDir = normalize(u_ViewPos - o_FragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec4 specularLight = spec * u_LightColor * SPECULAR_STRENGTH;
+
+    // Final output
+    o_FragColor = u_Color * (ambientLight + diffuseLight + specularLight);
 }

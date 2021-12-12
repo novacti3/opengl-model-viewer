@@ -75,8 +75,9 @@ int main()
     // and change accordingly
     glm::mat4 projMatrix = glm::perspective(45.0f, (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
+    glm::vec3 viewPos = glm::vec3(0.0f, -1.25f, -5.0f);
     glm::mat4 viewMatrix = glm::mat4(1.0f);
-    viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, -1.25f, -5.0f));
+    viewMatrix = glm::translate(viewMatrix, viewPos);
     
     glm::mat4 modelMatrix = glm::mat4(1.0f);
 
@@ -108,6 +109,7 @@ int main()
         {
             Scene::getInstance().shader->SetUniform("u_ModelMatrix", (void*)&modelMatrix);
             Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
+            Scene::getInstance().shader->SetUniform("u_ViewPos", (void*)&viewPos);
         }
         
         // Render the scene and UI

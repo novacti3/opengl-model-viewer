@@ -12,7 +12,7 @@ uniform mat4 u_MVP = mat4(1.0);
 void main()
 {    
     o_FragPos = vec3(u_ModelMatrix * vec4(a_Pos, 1.0));
-    o_Normal = a_Normal;
+    o_Normal = mat3(transpose(inverse(u_ModelMatrix))) * a_Normal;
     
     gl_Position = u_MVP * vec4(o_FragPos, 1.0);
 }
