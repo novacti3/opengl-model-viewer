@@ -88,9 +88,10 @@ void Renderer::DrawScene()
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
-        
+    if(scene.model == nullptr)
+        scene.model = _cube;
     scene.model->Bind();
-    
+
     if(scene.shader == nullptr)
         scene.shader = const_cast<Shader*>(&defaultShader);
     scene.shader->Bind();

@@ -10,9 +10,9 @@
 #include <memory>
 #include <utility>
 
-using LoadedShadersMap = std::unordered_map<std::string, std::unique_ptr<Shader>>;
-using LoadedTexturesMap = std::unordered_map<std::string, std::unique_ptr<Texture>>;
-using LoadedModelsMap = std::unordered_map<std::string, std::unique_ptr<Model>>;
+using LoadedShadersMap = std::unordered_map<std::string, Shader*>;
+using LoadedTexturesMap = std::unordered_map<std::string, Texture*>;
+using LoadedModelsMap = std::unordered_map<std::string, Model*>;
 
 class ResourceManager final : public Singleton<ResourceManager>
 {

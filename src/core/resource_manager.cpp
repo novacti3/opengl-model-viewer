@@ -75,7 +75,7 @@ const Shader* const ResourceManager::GetShader(const std::string &name)
     {
         if(shader.first.compare(name) == 0)
         {
-            return _loadedShaders[shader.first].get();
+            return _loadedShaders[shader.first];
         }
     }
     Log::LogWarning("Couldn't find shader '" + name + "' among loaded shaders");
@@ -86,8 +86,7 @@ void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 {
     if(shader != nullptr)
     {
-        std::unique_ptr<Shader> smartPtr(shader);
-        _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+        _loadedShaders.insert(std::make_pair(name, shader));
     }
 }
 void ResourceManager::UnloadShader(const std::string &name)
@@ -96,8 +95,7 @@ void ResourceManager::UnloadShader(const std::string &name)
     {
         if(shader.first.compare(name) == 0)
         {
-            shader.second.get()->Unbind();
-            // delete shader.second.get();
+            shader.second->Unbind();
             _loadedShaders.erase(shader.first);
             Log::LogInfo("Unloaded shader '" + name + "'");
             return;
@@ -141,7 +139,7 @@ const Texture* const ResourceManager::GetTexture(const std::string &name)
     {
         if(tex.first.compare(name) == 0)
         {
-            return _loadedTextures[tex.first].get();
+            return _loadedTextures[tex.first];
         }
     }
     Log::LogWarning("Couldn't find texture '" + name + "' among loaded textures");
@@ -152,8 +150,7 @@ void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
 {
     if(texture != nullptr)
     {
-        std::unique_ptr<Texture> smartPtr(texture);
-        _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
+        _loadedTextures.insert(std::make_pair(name, texture));
     }
 }
 
@@ -239,7 +236,7 @@ const Model* const ResourceManager::GetModel(const std::string &name)
         {
             if(model.first.compare(name) == 0)
             {
-                return _loadedModels[model.first].get();
+                return _loadedModels[model.first];
             }
         }
         Log::LogWarning("Couldn't find model '" + name + "' among loaded models");
@@ -249,8 +246,7 @@ void ResourceManager::AddLoadedModel(Model *model, std::string name)
 {
     if(model != nullptr)
     {
-        std::unique_ptr<Model> smartPtr(model);
-        _loadedModels.insert(std::make_pair(name, std::move(smartPtr)));
+        _loadedModels.insert(std::make_pair(name, model));
     }
 }
 void ResourceManager::UnloadModel(const std::string &name)
