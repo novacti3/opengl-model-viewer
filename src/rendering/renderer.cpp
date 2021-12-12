@@ -65,7 +65,7 @@ void Renderer::Init()
     _cube = new Model(std::move(cubeVertices));
     _quad = new Model(std::move(quadVertices));
 
-    Scene::getInstance().model = _cube;
+    // Scene::getInstance().model = _cube;
 }
 void Renderer::DeInit()
 {
