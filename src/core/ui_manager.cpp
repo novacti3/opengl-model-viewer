@@ -113,9 +113,12 @@ void UIManager::DrawMainMenuBar()
                 }
             }
 
-            rm.UnloadModel(currentModelName);
+            if(currentModelName.compare("") != 0)
+            {
+                rm.UnloadModel(currentModelName);
 
-            scene.model = nullptr;
+                scene.model = nullptr;
+            }
         }
         ImGui::Separator();
         if(ImGui::MenuItem("Exit"))

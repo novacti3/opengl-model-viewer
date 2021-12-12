@@ -261,6 +261,6 @@ void ResourceManager::UnloadModel(const std::string &name)
         }
     }
 
-    Log::LogInfo("Failed unloading model '" + name +"', model not among loaded textures");
+    Log::LogInfo("Failed unloading model '" + name +"', model not among loaded models");
 }
 #pragma endregion
