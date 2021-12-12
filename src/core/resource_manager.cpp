@@ -200,10 +200,12 @@ Model *ResourceManager::LoadModelFromOBJFile(const std::string &path)
                 glm::vec3 pos(0.0f);
                 // 3 * index is here because each vertex has 3 position coordinates
                 // Acts basically the same way as the stride for OpenGL vert attrib ptrs
-                float x = attrib.vertices[(3 * index.vertex_index) + 0];
-                float y = attrib.vertices[(3 * index.vertex_index) + 1];
-                float z = attrib.vertices[(3 * index.vertex_index) + 2];
-                pos = glm::vec3(x, y, z);
+                {
+                    float x = attrib.vertices[(3 * index.vertex_index) + 0];
+                    float y = attrib.vertices[(3 * index.vertex_index) + 1];
+                    float z = attrib.vertices[(3 * index.vertex_index) + 2];
+                    pos = glm::vec3(x, y, z);
+                }
 
                 glm::vec2 uv(0.0f);
                 // Only include UV coordinates if they are present
@@ -214,7 +216,16 @@ Model *ResourceManager::LoadModelFromOBJFile(const std::string &path)
                     uv = glm::vec2(u, v);
                 }
 
-                Vertex newVert(pos, uv);
+                glm::vec3 normal(0.0f);
+                if(index.normal_index >= 0)
+                {
+                    float x = attrib.normals[(3 * index.normal_index) + 0];
+                    float y = attrib.normals[(3 * index.normal_index) + 1]; 
+                    float z = attrib.normals[(3 * index.normal_index) + 2]; 
+                    normal = glm::vec3(x, y, z);
+                }
+
+                Vertex newVert(pos, uv, normal);
                 vertices.push_back(std::move(newVert));
             }
         }

@@ -105,7 +105,10 @@ int main()
         // Updating the MVP uniform of the currently used shader
         MVP = projMatrix * viewMatrix * modelMatrix;
         if(Scene::getInstance().shader != nullptr)
+        {
+            Scene::getInstance().shader->SetUniform("u_ModelMatrix", (void*)&modelMatrix);
             Scene::getInstance().shader->SetUniform("u_MVP", (void*)&MVP);  
+        }
         
         // Render the scene and UI
         Renderer::getInstance().DrawScene();

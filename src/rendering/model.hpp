@@ -10,12 +10,14 @@ struct Vertex final
 {
     glm::vec3 position;
     glm::vec2 uv;
+    glm::vec3 normal;
 
-    Vertex(): position(glm::vec3(0.0f)), uv(glm::vec2(0.0f)){}
-    Vertex(glm::vec3 position = glm::vec3(0.0f), glm::vec2 uv = glm::vec2(0.0f))
+    Vertex(): position(glm::vec3(0.0f)), uv(glm::vec2(0.0f)), normal(glm::vec3(0.0f)){}
+    Vertex(glm::vec3 position = glm::vec3(0.0f), glm::vec2 uv = glm::vec2(0.0f), glm::vec3 normal = glm::vec3(0.0f))
     {
         this->position = position;
         this->uv = uv;
+        this->normal = normal;
     }
 
     Vertex(const Vertex& other)
@@ -24,6 +26,7 @@ struct Vertex final
         {
             this->position = other.position;
             this->uv = other.uv;
+            this->normal = other.normal;
         }
     }
     Vertex& operator=(const Vertex& other)
@@ -32,6 +35,7 @@ struct Vertex final
         {
             this->position = other.position;
             this->uv = other.uv;
+            this->normal = other.normal;
         }
         return *this;
     }
@@ -42,6 +46,7 @@ struct Vertex final
         {
             this->position = std::move(other.position);
             this->uv = std::move(other.uv);
+            this->normal = std::move(other.normal);
         }
     }
     Vertex& operator=(Vertex&& other)
@@ -50,6 +55,7 @@ struct Vertex final
         {
             this->position = std::move(other.position);
             this->uv = std::move(other.uv);
+            this->normal = std::move(other.normal);
         }
         return *this;
     }
@@ -58,6 +64,7 @@ struct Vertex final
     {
         position = glm::vec3(0.0f);
         uv = glm::vec2(0.0f);
+        normal = glm::vec3(0.0f);
     }
 };
 
