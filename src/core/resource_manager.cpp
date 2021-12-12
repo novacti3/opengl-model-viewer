@@ -3,6 +3,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tinyobjloader/tiny_obj_loader.h>
+
 #include "log.hpp"
 #include "misc/utils.hpp"
 
@@ -72,7 +75,7 @@ const Shader* const ResourceManager::GetShader(const std::string &name)
     {
         if(shader.first.compare(name) == 0)
         {
-            return _loadedShaders[shader.first].get();
+            return _loadedShaders[shader.first];
         }
     }
     Log::LogWarning("Couldn't find shader '" + name + "' among loaded shaders");
@@ -83,8 +86,7 @@ void ResourceManager::AddLoadedShader(Shader *shader, std::string name)
 {
     if(shader != nullptr)
     {
-        std::unique_ptr<Shader> smartPtr(shader);
-        _loadedShaders.insert(std::make_pair(name, std::move(smartPtr)));
+        _loadedShaders.insert(std::make_pair(name, shader));
     }
 }
 void ResourceManager::UnloadShader(const std::string &name)
@@ -93,8 +95,7 @@ void ResourceManager::UnloadShader(const std::string &name)
     {
         if(shader.first.compare(name) == 0)
         {
-            shader.second.get()->Unbind();
-            // delete shader.second.get();
+            shader.second->Unbind();
             _loadedShaders.erase(shader.first);
             Log::LogInfo("Unloaded shader '" + name + "'");
             return;
@@ -138,7 +139,7 @@ const Texture* const ResourceManager::GetTexture(const std::string &name)
     {
         if(tex.first.compare(name) == 0)
         {
-            return _loadedTextures[tex.first].get();
+            return _loadedTextures[tex.first];
         }
     }
     Log::LogWarning("Couldn't find texture '" + name + "' among loaded textures");
@@ -149,8 +150,7 @@ void ResourceManager::AddLoadedTexture(Texture *texture, std::string name)
 {
     if(texture != nullptr)
     {
-        std::unique_ptr<Texture> smartPtr(texture);
-        _loadedTextures.insert(std::make_pair(name, std::move(smartPtr)));
+        _loadedTextures.insert(std::make_pair(name, texture));
     }
 }
 
@@ -168,5 +168,99 @@ void ResourceManager::UnloadTexture(const std::string &name)
     }
 
     Log::LogInfo("Failed unloading texture '" + name +"', texture not among loaded textures");
+}
+#pragma endregion
+
+#pragma region Models
+Model *ResourceManager::LoadModelFromOBJFile(const std::string &path)
+{
+    std::string objFileContents = ReadFile(path);
+    
+    tinyobj::ObjReaderConfig config;
+    config.mtl_search_path = "";
+    config.triangulate = true;
+    config.vertex_color = false;
+    
+    tinyobj::ObjReader reader;
+    reader.ParseFromString(objFileContents, "", config);
+
+    if(reader.Valid())
+    {
+        auto &attrib = reader.GetAttrib();
+        auto &shapes = reader.GetShapes();
+
+        std::vector<Vertex> vertices;
+
+        // Loop through each shape
+        for(const auto &shape: shapes)
+        {
+            // Loop through all of the indices of the given shape to construct Vertices
+            for(const auto &index: shape.mesh.indices)
+            {
+                glm::vec3 pos(0.0f);
+                // 3 * index is here because each vertex has 3 position coordinates
+                // Acts basically the same way as the stride for OpenGL vert attrib ptrs
+                float x = attrib.vertices[(3 * index.vertex_index) + 0];
+                float y = attrib.vertices[(3 * index.vertex_index) + 1];
+                float z = attrib.vertices[(3 * index.vertex_index) + 2];
+                pos = glm::vec3(x, y, z);
+
+                glm::vec2 uv(0.0f);
+                // Only include UV coordinates if they are present
+                if(index.texcoord_index >= 0)
+                {
+                    float u = attrib.texcoords[(2 * index.texcoord_index) + 0];
+                    float v = attrib.texcoords[(2 * index.texcoord_index) + 1];
+                    uv = glm::vec2(u, v);
+                }
+
+                Vertex newVert(pos, uv);
+                vertices.push_back(std::move(newVert));
+            }
+        }
+
+        std::string name = ParseFileNameAndExtension(path).first;
+        Model *model = new Model(std::move(vertices));
+        AddLoadedModel(model, name);
+        return model;
+    }
+    else
+    {
+        Log::LogError(reader.Error());
+        return nullptr;
+    }
+}
+const Model* const ResourceManager::GetModel(const std::string &name)
+{
+    for(const auto &model: _loadedModels)
+        {
+            if(model.first.compare(name) == 0)
+            {
+                return _loadedModels[model.first];
+            }
+        }
+        Log::LogWarning("Couldn't find model '" + name + "' among loaded models");
+        return nullptr;
+}
+void ResourceManager::AddLoadedModel(Model *model, std::string name)
+{
+    if(model != nullptr)
+    {
+        _loadedModels.insert(std::make_pair(name, model));
+    }
+}
+void ResourceManager::UnloadModel(const std::string &name)
+{
+    for(const auto &model: _loadedModels)
+    {
+        if(model.first.compare(name) == 0)
+        {
+            _loadedModels.erase(name);
+            Log::LogInfo("Unloaded model '" + name + "'");
+            return;
+        }
+    }
+
+    Log::LogInfo("Failed unloading model '" + name +"', model not among loaded models");
 }
 #pragma endregion

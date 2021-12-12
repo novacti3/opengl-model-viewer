@@ -65,7 +65,7 @@ void Renderer::Init()
     _cube = new Model(std::move(cubeVertices));
     _quad = new Model(std::move(quadVertices));
 
-    Scene::getInstance().model = _cube;
+    // Scene::getInstance().model = _cube;
 }
 void Renderer::DeInit()
 {
@@ -88,9 +88,10 @@ void Renderer::DrawScene()
 
     GL_CALL(glad_glPolygonMode(GL_FRONT_AND_BACK, (GLenum)settings.renderMode));
 
-        
+    if(scene.model == nullptr)
+        scene.model = _cube;
     scene.model->Bind();
-    
+
     if(scene.shader == nullptr)
         scene.shader = const_cast<Shader*>(&defaultShader);
     scene.shader->Bind();

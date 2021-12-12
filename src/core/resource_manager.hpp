@@ -3,14 +3,16 @@
 #include "misc/singleton.hpp"
 #include "rendering/shader.hpp"
 #include "rendering/texture.hpp"
+#include "rendering/model.hpp"
 
 #include <unordered_map>
 #include <string>
 #include <memory>
 #include <utility>
 
-using LoadedShadersMap = std::unordered_map<std::string, std::unique_ptr<Shader>>;
-using LoadedTexturesMap = std::unordered_map<std::string, std::unique_ptr<Texture>>;
+using LoadedShadersMap = std::unordered_map<std::string, Shader*>;
+using LoadedTexturesMap = std::unordered_map<std::string, Texture*>;
+using LoadedModelsMap = std::unordered_map<std::string, Model*>;
 
 class ResourceManager final : public Singleton<ResourceManager>
 {
@@ -19,6 +21,7 @@ class ResourceManager final : public Singleton<ResourceManager>
     private:
     LoadedShadersMap _loadedShaders;
     LoadedTexturesMap _loadedTextures;
+    LoadedModelsMap _loadedModels;
 
     private:
     ResourceManager() = default;
@@ -32,8 +35,9 @@ class ResourceManager final : public Singleton<ResourceManager>
     ResourceManager& operator=(ResourceManager&& other) = delete;
 
 
-    inline const LoadedShadersMap &getLoadedShaders()   { return _loadedShaders;  }
+    inline const LoadedShadersMap  &getLoadedShaders()  { return _loadedShaders;  }
     inline const LoadedTexturesMap &getLoadedTextures() { return _loadedTextures; }
+    inline const LoadedModelsMap   &getLoadedModels()   { return _loadedModels; }
 
     static std::string ReadFile(const std::string &path);
     static std::pair<std::string, std::string> ParseFileNameAndExtension(const std::string &path);
@@ -47,4 +51,9 @@ class ResourceManager final : public Singleton<ResourceManager>
     const Texture* const GetTexture(const std::string &name);
     void AddLoadedTexture(Texture *texture, std::string name);
     void UnloadTexture(const std::string &name);
+
+    Model *LoadModelFromOBJFile(const std::string &path);
+    const Model* const GetModel(const std::string &name);
+    void AddLoadedModel(Model *model, std::string name);
+    void UnloadModel(const std::string &name);
 };

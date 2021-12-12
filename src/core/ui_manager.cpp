@@ -64,23 +64,64 @@ std::vector<std::string> UIManager::ShowFileDialog(const std::string &title, con
 #pragma region Menus
 void UIManager::DrawMainMenuBar()
 {
+    static ResourceManager &rm = ResourceManager::getInstance();
+    static Scene &scene = Scene::getInstance();
+    
     ImGui::BeginMainMenuBar();
 
     if(ImGui::BeginMenu("File"))
     {
-        if(ImGui::MenuItem("Open file...", "CTRL+O", false, false))
+        if(ImGui::MenuItem("Open file..."))
         {
             // Open a file dialogue to let the user load a mesh
-            auto path = ShowFileDialog("Select mesh", {"All files", "*", "OBJ files", ".obj"});
-            // TODO: Notify the ResourceManager to load the provided mesh
+            std::vector<std::string> paths = ShowFileDialog("Select mesh", {"All files", "*", "OBJ files", ".obj"});
+            if(!paths.empty())
+            {
+                std::string path = paths[0];
+
+                if(path.compare("") != 0)
+                {
+                    const auto &loadedModels = rm.getLoadedModels();
+                    std::string currentModelName;
+                    
+                    for(const auto &model: loadedModels)
+                    {
+                        if(model.second == scene.model)
+                        {
+                            currentModelName = model.first;
+                            break;
+                        }
+                    }
+
+                    rm.UnloadModel(currentModelName);
+
+                    scene.model = rm.LoadModelFromOBJFile(path);
+                }
+            }
         }
-        if(ImGui::MenuItem("Close file", "CTRL+N", false, false))
+        if(ImGui::MenuItem("Close file"))
         {
-            // Close the currently loaded mesh
-            // TODO: Notify the ResourceManager to unload the currently used mesh
+            const auto &loadedModels = rm.getLoadedModels();
+            std::string currentModelName;
+            
+            for(const auto &model: loadedModels)
+            {
+                if(model.second == scene.model)
+                {
+                    currentModelName = model.first;
+                    break;
+                }
+            }
+
+            if(currentModelName.compare("") != 0)
+            {
+                rm.UnloadModel(currentModelName);
+
+                scene.model = nullptr;
+            }
         }
         ImGui::Separator();
-        if(ImGui::MenuItem("Exit", "ESC", false, false))
+        if(ImGui::MenuItem("Exit"))
         {
             // Quit program
             // TODO: Notify the app to end
@@ -141,7 +182,7 @@ void UIManager::DrawShaderPropertiesWindow()
 
                 // Set the current shader index equal to this shader's place in the loaded names list if it's the currently used shader
                 // Used to start the combo off on the right shader when first loading the window (eg. on "default" in most cases)
-                if(shader.second.get() == Scene::getInstance().shader)
+                if(shader.second == Scene::getInstance().shader)
                 {
                     // currentShader = std::distance(loadedShaderNames.begin(), loadedShaderNames.end()) - 1;
                     currentShader = FindIndexOfElement<std::string>(loadedShaderNames, shader.first);
@@ -561,7 +602,7 @@ Texture* UIManager::DrawWidgetTex2D(const char* const label, Texture* const valu
             std::string texKey;
             for(const auto &entry: loadedTextures)
             {
-                if(entry.second.get() == value)
+                if(entry.second == value)
                 {
                     texKey = entry.first;
                     break;
