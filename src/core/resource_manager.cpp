@@ -211,8 +211,11 @@ Model *ResourceManager::LoadModelFromOBJFile(const std::string &path)
                 // Only include UV coordinates if they are present
                 if(index.texcoord_index >= 0)
                 {
+                    // The OBJ file format uses the coordinate system of 0 being the bottom of the image.
+                    // OpenGL uses a system where 1 is the bottom of the image, therefore the
+                    // vertical UV coordinate must be flipped
                     float u = attrib.texcoords[(2 * index.texcoord_index) + 0];
-                    float v = attrib.texcoords[(2 * index.texcoord_index) + 1];
+                    float v = 1.0f - attrib.texcoords[(2 * index.texcoord_index) + 1];
                     uv = glm::vec2(u, v);
                 }
 
