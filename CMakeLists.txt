@@ -6,21 +6,18 @@ endif()
 
 project(ModelViewer LANGUAGES C CXX)
 
-make_directory(bin/)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin/$<CONFIG>/)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/")
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
 
 # Link GLFW and set build options
- add_subdirectory(libs/glfw ${ModelViewer_BINARY_DIR}/glfw)
+add_subdirectory(libs/glfw ${ModelViewer_BINARY_DIR}/glfw)
 set(BUILD_SHARED_LIBS OFF)
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 set(GLFW_INSTALL OFF)
-
-add_subdirectory(libs/freetype ${ModelViewer_BINARY_DIR}/freetype)
 
 list(APPEND INCLUDES
     # external includes
