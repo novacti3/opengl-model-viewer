@@ -59,10 +59,10 @@ int main()
     }
 
     // Resource loading
-    Scene::getInstance().shader = ResourceManager::getInstance().LoadShaderFromFiles("../../../res/shaders/default.vs", "../../../res/shaders/default.fs");
+    Scene::getInstance().shader = ResourceManager::getInstance().LoadShaderFromFiles("res/internal/default.vs", "res/internal/default.fs");
     
-    ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/ui_image_missing.jpg");
-    ResourceManager::getInstance().LoadTextureFromFile("../../../res/textures/tex_missing.jpg");
+    ResourceManager::getInstance().LoadTextureFromFile("res/internal/ui_image_missing.jpg");
+    ResourceManager::getInstance().LoadTextureFromFile("res/internal/tex_missing.jpg");
     
     // Scene::getInstance().model = ResourceManager::getInstance().LoadModelFromOBJFile("../../../res/models/axe.obj");
 
