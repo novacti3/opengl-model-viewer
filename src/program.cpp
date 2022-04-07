@@ -18,15 +18,11 @@
 
 static constexpr unsigned int WINDOW_WIDTH = 1270; 
 static constexpr unsigned int WINDOW_HEIGHT = 720;
-static const std::string WINDOW_TITLE = "My OpenGL Program";
+static const std::string WINDOW_TITLE = "Model Viewer";
 
 int main()
 {
-#ifdef _DEBUG
     Log::SetLogLevelFilter(LogLevel::Info);
-#else
-    Log::SetLogLevelFilter(LogLevel::Warning);
-#endif
 
     // GLFW init
     if(!glfwInit())
