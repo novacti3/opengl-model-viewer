@@ -135,7 +135,7 @@ void ShaderUniform::DeleteValuePtr()
         case ShaderUniformType::MAT2:
         case ShaderUniformType::MAT3:
         case ShaderUniformType::MAT4:
-            delete((float*)this->value);
+            delete[]((float*)this->value);
         break;
 
         case ShaderUniformType::TEX2D:

@@ -25,7 +25,7 @@ int main()
 #ifdef _DEBUG
     Log::SetLogLevelFilter(LogLevel::Info);
 #else
-    Log::SetLogLevelFilter(LogLevel::Info);
+    Log::SetLogLevelFilter(LogLevel::Warning);
 #endif
 
     // GLFW init
@@ -64,8 +64,6 @@ int main()
     ResourceManager::getInstance().LoadTextureFromFile("res/internal/ui_image_missing.jpg");
     ResourceManager::getInstance().LoadTextureFromFile("res/internal/tex_missing.jpg");
     
-    // Scene::getInstance().model = ResourceManager::getInstance().LoadModelFromOBJFile("../../../res/models/axe.obj");
-
     // Rendering init
     UIManager::getInstance().Init(window);
     Renderer::getInstance().Init();
